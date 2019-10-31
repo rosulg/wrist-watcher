@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { Injectable, ElementRef, OnDestroy, NgZone } from '@angular/core';
+import { Cube } from '../models/cube';
 
 @Injectable({
   providedIn: 'root'
@@ -33,6 +34,8 @@ export class EngineService implements OnDestroy {
       antialias: true // smooth edges
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+    // Set white background
+    this.renderer.setClearColor(0xFFFFFF, 1.0);
 
     // create the scene
     this.scene = new THREE.Scene();
@@ -48,9 +51,7 @@ export class EngineService implements OnDestroy {
     this.light.position.z = 10;
     this.scene.add(this.light);
 
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    this.cube = new THREE.Mesh( geometry, material );
+    this.cube = new Cube('purple').obj;
     this.scene.add(this.cube);
 
   }
