@@ -29,7 +29,7 @@
             "styles": [
               "src/styles/main.scss"
             ],
-            "scripts": [],
+            "scripts": ["src/app/models/OBJLoader.js"],
             "stylePreprocessorOptions": {
               "includePaths": [
                 "src/styles"

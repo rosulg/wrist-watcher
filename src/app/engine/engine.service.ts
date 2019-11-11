@@ -1,6 +1,11 @@
-import * as THREE from 'three';
+//import * as THREE from 'three';
 import { Injectable, ElementRef, OnDestroy, NgZone } from '@angular/core';
 import { Cube } from '../models/cube';
+import * as THREE from 'three-full';
+
+//if this works you should be able to import
+//import {OBJLoader} '.models/OBJLoader';
+
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +16,8 @@ export class EngineService implements OnDestroy {
   private camera: THREE.PerspectiveCamera;
   private scene: THREE.Scene;
   private light: THREE.AmbientLight;
+
+  
 
   private cube: THREE.Mesh;
 
@@ -54,7 +61,33 @@ export class EngineService implements OnDestroy {
     this.cube = new Cube('purple').obj;
     this.scene.add(this.cube);
 
-  }
+    
+    const manager = new THREE.LoadingManager();
+    const loader = new THREE.OBJLoader();
+
+    //Current loader doesn't allow this
+    //loader.setpath(".model/hand.obj")
+    
+
+    /*
+    var THREE = require('three');
+    var OBJLoader = require('three-obj-loader');
+    OBJLoader(THREE);
+    const loader = OBJLoader(THREE);
+    loader.setpath("model");*/
+   
+    
+    loader.load(
+      // resource URL
+      "model/hand.obj",
+      // called when resource is loaded
+      function ( object ) {
+
+        this.scene.add( object );
+
+      })
+    
+    }
 
   animate(): void {
     // We have to run this outside angular zones,
@@ -93,4 +126,7 @@ export class EngineService implements OnDestroy {
 
     this.renderer.setSize( width, height );
   }
+  
 }
+
+
