@@ -2,7 +2,8 @@ import {Injectable, ElementRef, OnDestroy, NgZone, OnInit} from '@angular/core';
 import * as THREE from 'three';
 import { OBJLoader } from 'three-addons';
 import { Hand } from '../models/hand';
-import {Hublot} from '../models/hublot';
+import { HublotWatch } from '../models/hublot-watch';
+import { TwoToneWatch } from '../models/two-tone-watch';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,8 @@ export class EngineService implements OnDestroy {
   private scene: THREE.Scene;
   private light: THREE.AmbientLight;
   private hand: THREE.Object3D;
-  private hublot: THREE.Object3D;
+  private hublotWatch: THREE.Object3D;
+  private twoToneWatch: THREE.Object3D;
   private objLoader: OBJLoader;
 
   private frameId: number = null;
@@ -57,10 +59,13 @@ export class EngineService implements OnDestroy {
     this.scene.add(this.light);
 
     this.hand = await new Hand(0xfffbf5).load();
-    this.hublot = await new Hublot(0x00ff00).load();
+    this.hublotWatch = await new HublotWatch(0x000000).load();
+    this.twoToneWatch = await new TwoToneWatch(0x00ff00).load();
+    this.twoToneWatch.position.x -= 3;
 
     this.scene.add(this.hand);
-    this.scene.add(this.hublot);
+    this.scene.add(this.hublotWatch);
+    this.scene.add(this.twoToneWatch);
     }
 
   animate(): void {
@@ -86,12 +91,15 @@ export class EngineService implements OnDestroy {
       this.render();
     });
 
-    if (this.hand && this.hublot) {
+    if (this.hand && this.hublotWatch && this.twoToneWatch) {
       this.hand.rotation.x += 0.01;
       this.hand.rotation.y += 0.01;
 
-      this.hublot.rotation.x -= 0.01;
-      this.hublot.rotation.y -= 0.01;
+      this.hublotWatch.rotation.x -= 0.01;
+      this.hublotWatch.rotation.y -= 0.01;
+
+      this.twoToneWatch.rotation.x += 0.015;
+      this.twoToneWatch.rotation.y += 0.015;
     }
 
     this.renderer.render(this.scene, this.camera);
