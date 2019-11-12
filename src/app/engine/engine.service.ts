@@ -1,7 +1,8 @@
-import { Injectable, ElementRef, OnDestroy, NgZone } from '@angular/core';
+import {Injectable, ElementRef, OnDestroy, NgZone, OnInit} from '@angular/core';
 import * as THREE from 'three';
 import { OBJLoader } from 'three-addons';
 import { Hand } from '../models/hand';
+import {Hublot} from '../models/hublot';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +14,7 @@ export class EngineService implements OnDestroy {
   private scene: THREE.Scene;
   private light: THREE.AmbientLight;
   private hand: THREE.Object3D;
+  private hublot: THREE.Object3D;
   private objLoader: OBJLoader;
 
   private frameId: number = null;
@@ -54,8 +56,11 @@ export class EngineService implements OnDestroy {
     this.light.position.z = 10;
     this.scene.add(this.light);
 
-    this.hand = await new Hand(0xfffbf5).obj;
+    this.hand = await new Hand(0xfffbf5).load();
+    this.hublot = await new Hublot(0x00ff00).load();
+
     this.scene.add(this.hand);
+    this.scene.add(this.hublot);
     }
 
   animate(): void {
@@ -81,9 +86,12 @@ export class EngineService implements OnDestroy {
       this.render();
     });
 
-    if (this.hand) {
+    if (this.hand && this.hublot) {
       this.hand.rotation.x += 0.01;
       this.hand.rotation.y += 0.01;
+
+      this.hublot.rotation.x -= 0.01;
+      this.hublot.rotation.y -= 0.01;
     }
 
     this.renderer.render(this.scene, this.camera);

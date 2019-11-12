@@ -8,11 +8,7 @@ export class Hand {
         this.color = color;
     }
 
-    get obj(): Promise<THREE.Object3D> {
-        return this.loadHand();
-    }
-
-    private async loadHand(): Promise<THREE.Object3D> {
+    async load(): Promise<THREE.Object3D> {
         return new Promise(res => {
             new OBJLoader().load(
                 './assets/obj-models/hand.obj',
