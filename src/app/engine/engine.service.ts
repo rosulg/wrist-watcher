@@ -12,7 +12,7 @@ export class EngineService implements OnDestroy {
   private camera: THREE.PerspectiveCamera;
   private scene: THREE.Scene;
   private light: THREE.AmbientLight;
-  private hand: THREE.Mesh;
+  private hand: THREE.Object3D;
   private objLoader: OBJLoader;
 
   private frameId: number = null;
