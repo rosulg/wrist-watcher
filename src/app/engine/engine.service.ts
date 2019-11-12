@@ -1,11 +1,8 @@
-//import * as THREE from 'three';
 import { Injectable, ElementRef, OnDestroy, NgZone } from '@angular/core';
 import { Cube } from '../models/cube';
-import * as THREE from 'three-full';
-
-//if this works you should be able to import
-//import {OBJLoader} '.models/OBJLoader';
-
+import * as THREE from 'three';
+import { OBJLoader } from 'three-addons';
+import { Hand } from '../models/hand';
 
 @Injectable({
   providedIn: 'root'
@@ -16,14 +13,15 @@ export class EngineService implements OnDestroy {
   private camera: THREE.PerspectiveCamera;
   private scene: THREE.Scene;
   private light: THREE.AmbientLight;
-
-  
-
   private cube: THREE.Mesh;
+  private hand: THREE.Mesh;
+  private objLoader: OBJLoader;
 
   private frameId: number = null;
 
-  public constructor(private ngZone: NgZone) {}
+  public constructor(private ngZone: NgZone) {
+    this.objLoader = new OBJLoader();
+  }
 
   public ngOnDestroy() {
     if (this.frameId != null) {
@@ -31,7 +29,7 @@ export class EngineService implements OnDestroy {
     }
   }
 
-  createScene(canvas: ElementRef<HTMLCanvasElement>): void {
+  async createScene(canvas: ElementRef<HTMLCanvasElement>): Promise<void> {
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = canvas.nativeElement;
 
@@ -59,34 +57,11 @@ export class EngineService implements OnDestroy {
     this.scene.add(this.light);
 
     this.cube = new Cube('purple').obj;
+    this.cube.position.y += 2;
     this.scene.add(this.cube);
 
-    
-    const manager = new THREE.LoadingManager();
-    const loader = new THREE.OBJLoader();
-
-    //Current loader doesn't allow this
-    //loader.setpath(".model/hand.obj")
-    
-
-    /*
-    var THREE = require('three');
-    var OBJLoader = require('three-obj-loader');
-    OBJLoader(THREE);
-    const loader = OBJLoader(THREE);
-    loader.setpath("model");*/
-   
-    
-    loader.load(
-      // resource URL
-      "model/hand.obj",
-      // called when resource is loaded
-      function ( object ) {
-
-        this.scene.add( object );
-
-      })
-    
+    this.hand = await new Hand(0xfffbf5).obj;
+    this.scene.add(this.hand);
     }
 
   animate(): void {
@@ -114,6 +89,12 @@ export class EngineService implements OnDestroy {
 
     this.cube.rotation.x += 0.01;
     this.cube.rotation.y += 0.01;
+
+    if (this.hand) {
+      this.hand.rotation.x += 0.01;
+      this.hand.rotation.y += 0.01;
+    }
+
     this.renderer.render(this.scene, this.camera);
   }
 
@@ -126,7 +107,4 @@ export class EngineService implements OnDestroy {
 
     this.renderer.setSize( width, height );
   }
-  
 }
-
-

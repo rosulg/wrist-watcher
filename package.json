@@ -26,8 +26,7 @@
     "core-js": "^2.6.10",
     "rxjs": "~6.5.3",
     "three": "^0.109.0",
-    "three-full": "^17.1.0",
-    "three-obj-loader": "^1.1.3",
+    "three-addons": "^1.2.0",
     "zone.js": "~0.9.1"
   },
   "devDependencies": {
