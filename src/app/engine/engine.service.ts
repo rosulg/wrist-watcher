@@ -4,6 +4,7 @@ import { OBJLoader } from 'three-addons';
 import { Hand } from '../models/hand';
 import { HublotWatch } from '../models/hublot-watch';
 import { TwoToneWatch } from '../models/two-tone-watch';
+import {toRad} from '../helpers/helpers';
 
 @Injectable({
   providedIn: 'root'
@@ -14,10 +15,9 @@ export class EngineService implements OnDestroy {
   private camera: THREE.PerspectiveCamera;
   private scene: THREE.Scene;
   private light: THREE.AmbientLight;
-  private hand: THREE.Object3D;
-  private hublotWatch: THREE.Object3D;
-  private twoToneWatch: THREE.Object3D;
   private objLoader: OBJLoader;
+
+  private group: THREE.Group;
 
   private frameId: number = null;
 
@@ -47,6 +47,10 @@ export class EngineService implements OnDestroy {
     // create the scene
     this.scene = new THREE.Scene();
 
+    // Axeshelpers
+    const axesHelper = new THREE.AxesHelper(1000);
+    this.scene.add(axesHelper);
+
     this.camera = new THREE.PerspectiveCamera(
       75, window.innerWidth / window.innerHeight, 0.1, 1000
     );
@@ -62,14 +66,17 @@ export class EngineService implements OnDestroy {
     pointLight.position.set( 0, 10, 0 );
     this.scene.add( pointLight );
 
-    this.hand = await new Hand(0xfffbf5).load();
-    this.hublotWatch = await new HublotWatch(0x000000).load();
-    this.twoToneWatch = await new TwoToneWatch(0x00ff00).load();
-    this.twoToneWatch.position.x -= 3;
 
-    this.scene.add(this.hand);
-    this.scene.add(this.hublotWatch);
-    this.scene.add(this.twoToneWatch);
+    const hand = await new Hand(0xfffbf5).load();
+    const watch = await new TwoToneWatch(0x00ff00).load();
+    this.group = new THREE.Group();
+    this.group.position.set(0, 0, 0);
+    this.group.add(hand, watch);
+    hand.position.set(0, -3, -2);
+    hand.rotation.set(toRad(40), 0, 0);
+    watch.position.set(-0.6, -1.35, -0.16);
+    watch.rotation.set(toRad(-50), toRad(15), toRad(-30));
+    this.scene.add(this.group);
     }
 
   animate(): void {
@@ -95,15 +102,9 @@ export class EngineService implements OnDestroy {
       this.render();
     });
 
-    if (this.hand && this.hublotWatch && this.twoToneWatch) {
-      this.hand.rotation.x += 0.01;
-      this.hand.rotation.y += 0.01;
-
-      this.hublotWatch.rotation.x -= 0.01;
-      this.hublotWatch.rotation.y -= 0.01;
-
-      this.twoToneWatch.rotation.x += 0.015;
-      this.twoToneWatch.rotation.y += 0.015;
+    if (this.group) {
+      this.group.rotation.x += 0.01;
+      this.group.rotation.y += 0.01;
     }
 
     this.renderer.render(this.scene, this.camera);

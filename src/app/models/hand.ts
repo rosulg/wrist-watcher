@@ -14,7 +14,7 @@ export class Hand {
                 './assets/models/hand.obj',
                 (obj) => {
                     const hand = obj.getObjectByName('hand');
-                    hand.scale.set(2, 2, 2);
+                    hand.scale.set(3, 3, 3);
                     hand.material.color.setHex(this.color);
 
                     return res(hand);

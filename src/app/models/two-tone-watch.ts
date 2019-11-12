@@ -29,7 +29,7 @@ export class TwoToneWatch {
                 './assets/models/two-tone-watch.obj',
                 (obj) => {
                     obj.name = 'Two-tone';
-                    obj.scale.set(1, 1, 1);
+                    obj.scale.set(0.45, 0.45, 0.45);
                     return res(obj);
                 }
             );
