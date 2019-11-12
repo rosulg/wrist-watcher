@@ -1,5 +1,4 @@
 import { Injectable, ElementRef, OnDestroy, NgZone } from '@angular/core';
-import { Cube } from '../models/cube';
 import * as THREE from 'three';
 import { OBJLoader } from 'three-addons';
 import { Hand } from '../models/hand';
@@ -13,7 +12,6 @@ export class EngineService implements OnDestroy {
   private camera: THREE.PerspectiveCamera;
   private scene: THREE.Scene;
   private light: THREE.AmbientLight;
-  private cube: THREE.Mesh;
   private hand: THREE.Mesh;
   private objLoader: OBJLoader;
 
@@ -56,10 +54,6 @@ export class EngineService implements OnDestroy {
     this.light.position.z = 10;
     this.scene.add(this.light);
 
-    this.cube = new Cube('purple').obj;
-    this.cube.position.y += 2;
-    this.scene.add(this.cube);
-
     this.hand = await new Hand(0xfffbf5).obj;
     this.scene.add(this.hand);
     }
@@ -86,9 +80,6 @@ export class EngineService implements OnDestroy {
     this.frameId = requestAnimationFrame(() => {
       this.render();
     });
-
-    this.cube.rotation.x += 0.01;
-    this.cube.rotation.y += 0.01;
 
     if (this.hand) {
       this.hand.rotation.x += 0.01;
