@@ -11,7 +11,7 @@ export class Hand {
     async load(): Promise<THREE.Object3D> {
         return new Promise(res => {
             new OBJLoader().load(
-                './assets/obj-models/hand.obj',
+                './assets/models/hand.obj',
                 (obj) => {
                     const hand = obj.getObjectByName('hand');
                     hand.scale.set(2, 2, 2);

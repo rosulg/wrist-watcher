@@ -58,6 +58,10 @@ export class EngineService implements OnDestroy {
     this.light.position.z = 10;
     this.scene.add(this.light);
 
+    const pointLight = new THREE.PointLight( 0xfdfbd3, 1, 100 );
+    pointLight.position.set( 0, 10, 0 );
+    this.scene.add( pointLight );
+
     this.hand = await new Hand(0xfffbf5).load();
     this.hublotWatch = await new HublotWatch(0x000000).load();
     this.twoToneWatch = await new TwoToneWatch(0x00ff00).load();
