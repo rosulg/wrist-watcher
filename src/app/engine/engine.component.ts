@@ -6,15 +6,17 @@ import { EngineService } from './engine.service';
   templateUrl: './engine.component.html'
 })
 export class EngineComponent implements OnInit {
+  loading = true;
 
   @ViewChild('rendererCanvas', { static: true })
   public rendererCanvas: ElementRef<HTMLCanvasElement>;
 
   constructor(private engServ: EngineService) { }
 
-  ngOnInit() {
-    this.engServ.createScene(this.rendererCanvas);
-    this.engServ.animate();
+  async ngOnInit() {
+    await this.engServ.createScene(this.rendererCanvas);
+    await this.engServ.animate();
+    this.loading = false;
   }
 
 }

@@ -1,3 +1,4 @@
 <div class="engine-wrapper">
-  <canvas #rendererCanvas id="renderCanvas"></canvas>
+  <h1 *ngIf="loading" style="color: greenyellow; display: flex; align-items: center; justify-content: center; height: 100vh">Loading...</h1>
+  <canvas [hidden]="loading" #rendererCanvas id="renderCanvas"></canvas>
 </div>
