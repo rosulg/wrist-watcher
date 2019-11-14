@@ -5,6 +5,7 @@ import { Hand } from '../models/hand';
 import { HublotWatch } from '../models/hublot-watch';
 import { TwoToneWatch } from '../models/two-tone-watch';
 import {toRad} from '../helpers/helpers';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +21,9 @@ export class EngineService implements OnDestroy {
   private group: THREE.Group;
 
   private frameId: number = null;
+
+  private messageSource = new BehaviorSubject(5);
+  currentMessage = this.messageSource.asObservable();
 
   public constructor(private ngZone: NgZone) {
     this.objLoader = new OBJLoader();
@@ -56,6 +60,8 @@ export class EngineService implements OnDestroy {
     );
     this.camera.position.z = 5;
     this.scene.add(this.camera);
+
+
 
     // soft white light
     this.light = new THREE.AmbientLight( 0x404040 );
@@ -119,4 +125,11 @@ export class EngineService implements OnDestroy {
 
     this.renderer.setSize( width, height );
   }
+  
+  //changing the camera position + where it looks at
+  changeMessage(message: number) {
+    this.camera.position.z= message;
+    this.camera.lookAt(new THREE.Vector3(0,0,0))
+  }
+
 }

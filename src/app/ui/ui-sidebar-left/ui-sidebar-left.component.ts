@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { EngineService } from 'src/app/engine/engine.service';
 
 @Component({
   selector: 'app-ui-sidebar-left',
@@ -7,9 +8,20 @@ import { Component, OnInit } from '@angular/core';
 })
 export class UiSidebarLeftComponent implements OnInit {
 
-  constructor() { }
+  message:number;
+
+  constructor(private data: EngineService) { }
 
   ngOnInit() {
+    this.data.currentMessage.subscribe(message => this.message = message)
+  }
+
+  front(){
+    this.data.changeMessage(5)
+  }
+
+  back(){
+    this.data.changeMessage(-7)
   }
 
 }
