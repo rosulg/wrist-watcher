@@ -22,11 +22,14 @@
     "@angular/platform-browser": "~8.2.11",
     "@angular/platform-browser-dynamic": "~8.2.11",
     "@angular/router": "~8.2.11",
+    "@avatsaev/three-orbitcontrols-ts": "^0.1.5",
     "bootstrap": "^4.3.1",
     "core-js": "^2.6.10",
     "rxjs": "~6.5.3",
     "three": "^0.109.0",
+    "three-addons": "^1.2.0",
     "three-obj-mtl-loader": "^1.0.3",
+    "three-orbit-controls": "^82.1.0",
     "zone.js": "~0.9.1"
   },
   "devDependencies": {

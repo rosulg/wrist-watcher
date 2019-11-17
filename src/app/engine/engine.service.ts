@@ -6,6 +6,7 @@ import { HublotWatch } from '../models/hublot-watch';
 import { TwoToneWatch } from '../models/two-tone-watch';
 import {toRad} from '../helpers/helpers';
 import { BehaviorSubject } from 'rxjs';
+import { OrbitControls } from '@avatsaev/three-orbitcontrols-ts';
 
 @Injectable({
   providedIn: 'root'
@@ -17,14 +18,14 @@ export class EngineService implements OnDestroy {
   private scene: THREE.Scene;
   private light: THREE.AmbientLight;
   private objLoader: OBJLoader;
-
+  controls = null;
   private group: THREE.Group;
 
   private frameId: number = null;
 
   private messageSource = new BehaviorSubject(5);
   currentMessage = this.messageSource.asObservable();
-
+  
   public constructor(private ngZone: NgZone) {
     this.objLoader = new OBJLoader();
   }
@@ -33,6 +34,14 @@ export class EngineService implements OnDestroy {
     if (this.frameId != null) {
       cancelAnimationFrame(this.frameId);
     }
+  }
+
+  configControls() {
+    this.controls = new OrbitControls(this.camera, this.canvas);
+    this.controls.autoRotate = false;
+    this.controls.enableZoom = true;
+    this.controls.enablePan = true;
+    this.controls.update();
   }
 
   async createScene(canvas: ElementRef<HTMLCanvasElement>): Promise<void> {
@@ -60,6 +69,7 @@ export class EngineService implements OnDestroy {
     );
     this.camera.position.z = 5;
     this.scene.add(this.camera);
+    this.configControls();
 
 
 
@@ -83,6 +93,7 @@ export class EngineService implements OnDestroy {
     watch.position.set(-0.6, -1.35, -0.16);
     watch.rotation.set(toRad(-50), toRad(15), toRad(-30));
     this.scene.add(this.group);
+    
     }
 
   animate(): void {
@@ -101,6 +112,7 @@ export class EngineService implements OnDestroy {
         this.resize();
       });
     });
+    this.controls.update();
   }
 
   render() {
