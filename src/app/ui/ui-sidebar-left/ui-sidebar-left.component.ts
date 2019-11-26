@@ -5,31 +5,23 @@ import {SidebarNotificationService} from '../../services/sidebar-notification.se
 @Component({
   selector: 'app-ui-sidebar-left',
   templateUrl: './ui-sidebar-left.component.html',
-  styleUrls: []
+  styleUrls: ['./ui-sidebar-left.component.css']
 })
-export class UiSidebarLeftComponent implements OnInit {
-
-  message: number;
+export class UiSidebarLeftComponent {
 
   private rotate = false;
+  private backward = false;
 
-  constructor(private data: EngineService, private sidebarNotificationService: SidebarNotificationService) { }
+  constructor(private sidebarNotificationService: SidebarNotificationService) { }
 
-  ngOnInit() {
-    this.data.currentMessage.subscribe(message => this.message = message)
-  }
-
-  front(){
-    this.data.changeMessage(5)
-  }
-
-  back(){
-    this.data.changeMessage(-7)
+  toggleForward () {
+    this.backward = !this.backward;
+    this.sidebarNotificationService.notify({backward: this.backward, rotate: this.rotate});
   }
 
   toggleRotation() {
     this.rotate = !this.rotate;
-    this.sidebarNotificationService.notify({rotate: this.rotate});
+    this.sidebarNotificationService.notify({rotate: this.rotate, backward: this.backward});
   }
 
 }

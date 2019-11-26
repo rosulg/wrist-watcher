@@ -1,5 +1,4 @@
-<div>
-<button (click)="front()">Front View</button>
-<button (click)="back()">Back View</button>
-<button (click)="toggleRotation()">Rotate</button>
+<div class="container">
+    <button [ngStyle]="{'background-color': backward ? 'limegreen' : 'crimson'}" class="action-button" (click)="toggleForward()">Backward</button>
+    <button [ngStyle]="{'background-color': rotate ? 'limegreen' : 'crimson'}" class="action-button" (click)="toggleRotation()">Rotate</button>
 </div>

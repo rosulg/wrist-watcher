@@ -22,16 +22,13 @@ export class EngineService implements OnDestroy {
   private group: THREE.Group;
   private sidebarAction: SidebarAction;
   private sidebarActionSubscription: Subscription;
-
   private frameId: number = null;
-
-  private messageSource = new BehaviorSubject(5);
-  currentMessage = this.messageSource.asObservable();
 
   public constructor(private ngZone: NgZone, private sidebarNotificationService: SidebarNotificationService) {
     this.objLoader = new OBJLoader();
     this.sidebarActionSubscription = sidebarNotificationService.observable.subscribe(res => {
       this.sidebarAction = res;
+      this.changeCameraPosition(this.sidebarAction);
     }, err => console.log(err));
   }
 
@@ -135,6 +132,7 @@ export class EngineService implements OnDestroy {
       this.render();
     });
 
+    // NB! Rotate all objects inside this if statement. Otherwise toggling rotation will not work!
     if (this.group && this.sidebarAction && this.sidebarAction.rotate) {
       this.group.rotation.x += 0.01;
       this.group.rotation.y += 0.01;
@@ -153,10 +151,11 @@ export class EngineService implements OnDestroy {
     this.renderer.setSize( width, height );
   }
 
-  //changing the camera position + where it looks at
-  changeMessage(message: number) {
-    this.camera.position.z= message;
-    this.camera.lookAt(new THREE.Vector3(0,0,0))
+  private changeCameraPosition(action: SidebarAction) {
+    if (this.camera && action) {
+      this.camera.position.z = action.backward ? -7 : 5;
+      this.camera.lookAt(new THREE.Vector3());
+    }
   }
 
 }
