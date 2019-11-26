@@ -2,7 +2,6 @@ import {Injectable, ElementRef, OnDestroy, NgZone, OnInit} from '@angular/core';
 import * as THREE from 'three';
 import { OBJLoader } from 'three-addons';
 import { Hand } from '../models/hand';
-import { HublotWatch } from '../models/hublot-watch';
 import { TwoToneWatch } from '../models/two-tone-watch';
 import {toRad} from '../helpers/helpers';
 import { BehaviorSubject } from 'rxjs';
@@ -85,16 +84,23 @@ export class EngineService implements OnDestroy {
 
     const hand = await new Hand(0xfffbf5).load();
     const watch = await new TwoToneWatch(0x00ff00).load();
+    // Center the hand in the world center
+    hand.position.set(0.4, -2.6, -0.5);
+
+    // Rotate the watch to match the hand wrist location
+    watch.rotation.set(
+        toRad(270),
+        toRad(15),
+        toRad(-30),
+    );
+    // Position the watch on-top of the wrist.
+    watch.position.set(-0.1, -0.175, -0.05);
+
     this.group = new THREE.Group();
     this.group.position.set(0, 0, 0);
     this.group.add(hand, watch);
-    hand.position.set(0, -3, -2);
-    hand.rotation.set(toRad(40), 0, 0);
-    watch.position.set(-0.6, -1.35, -0.16);
-    watch.rotation.set(toRad(-50), toRad(15), toRad(-30));
     this.scene.add(this.group);
-    
-    }
+  }
 
   animate(): void {
     // We have to run this outside angular zones,
@@ -121,8 +127,8 @@ export class EngineService implements OnDestroy {
     });
 
     if (this.group) {
-      this.group.rotation.x += 0.01;
-      this.group.rotation.y += 0.01;
+      // this.group.rotation.x += 0.01;
+      // this.group.rotation.y += 0.01;
     }
 
     this.renderer.render(this.scene, this.camera);
@@ -137,7 +143,7 @@ export class EngineService implements OnDestroy {
 
     this.renderer.setSize( width, height );
   }
-  
+
   //changing the camera position + where it looks at
   changeMessage(message: number) {
     this.camera.position.z= message;

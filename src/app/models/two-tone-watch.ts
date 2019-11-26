@@ -30,6 +30,10 @@ export class TwoToneWatch {
                 (obj) => {
                     obj.name = 'Two-tone';
                     obj.scale.set(0.45, 0.45, 0.45);
+                    const links = obj.children.filter(el => el.name.toLowerCase().includes('strap') || el.name === 'lock');
+                    links.forEach(child => {
+                        child.scale.set(1, 0.67, 1);
+                    });
                     return res(obj);
                 }
             );
