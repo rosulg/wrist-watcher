@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { EngineService } from 'src/app/engine/engine.service';
+import {SidebarNotificationService} from '../../services/sidebar-notification.service';
 
 @Component({
   selector: 'app-ui-sidebar-left',
@@ -8,9 +9,11 @@ import { EngineService } from 'src/app/engine/engine.service';
 })
 export class UiSidebarLeftComponent implements OnInit {
 
-  message:number;
+  message: number;
 
-  constructor(private data: EngineService) { }
+  private rotate = false;
+
+  constructor(private data: EngineService, private sidebarNotificationService: SidebarNotificationService) { }
 
   ngOnInit() {
     this.data.currentMessage.subscribe(message => this.message = message)
@@ -22,6 +25,11 @@ export class UiSidebarLeftComponent implements OnInit {
 
   back(){
     this.data.changeMessage(-7)
+  }
+
+  toggleRotation() {
+    this.rotate = !this.rotate;
+    this.sidebarNotificationService.notify({rotate: this.rotate});
   }
 
 }

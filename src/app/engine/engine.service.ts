@@ -1,11 +1,12 @@
-import {Injectable, ElementRef, OnDestroy, NgZone, OnInit} from '@angular/core';
+import {Injectable, ElementRef, OnDestroy, NgZone } from '@angular/core';
 import * as THREE from 'three';
 import { OBJLoader } from 'three-addons';
 import { Hand } from '../models/hand';
 import { TwoToneWatch } from '../models/two-tone-watch';
 import {toRad} from '../helpers/helpers';
-import { BehaviorSubject } from 'rxjs';
+import {BehaviorSubject, Subscription} from 'rxjs';
 import { OrbitControls } from '@avatsaev/three-orbitcontrols-ts';
+import {SidebarAction, SidebarNotificationService} from '../services/sidebar-notification.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,20 +20,28 @@ export class EngineService implements OnDestroy {
   private objLoader: OBJLoader;
   controls = null;
   private group: THREE.Group;
+  private sidebarAction: SidebarAction;
+  private sidebarActionSubscription: Subscription;
 
   private frameId: number = null;
 
   private messageSource = new BehaviorSubject(5);
   currentMessage = this.messageSource.asObservable();
-  
-  public constructor(private ngZone: NgZone) {
+
+  public constructor(private ngZone: NgZone, private sidebarNotificationService: SidebarNotificationService) {
     this.objLoader = new OBJLoader();
+    this.sidebarActionSubscription = sidebarNotificationService.observable.subscribe(res => {
+      this.sidebarAction = res;
+    }, err => console.log(err));
   }
 
-  public ngOnDestroy() {
-    if (this.frameId != null) {
-      cancelAnimationFrame(this.frameId);
-    }
+    public ngOnDestroy() {
+      if (this.frameId != null) {
+        cancelAnimationFrame(this.frameId);
+      }
+
+      // Unsubscribe
+      this.sidebarActionSubscription.unsubscribe();
   }
 
   configControls() {
@@ -126,9 +135,9 @@ export class EngineService implements OnDestroy {
       this.render();
     });
 
-    if (this.group) {
-      // this.group.rotation.x += 0.01;
-      // this.group.rotation.y += 0.01;
+    if (this.group && this.sidebarAction && this.sidebarAction.rotate) {
+      this.group.rotation.x += 0.01;
+      this.group.rotation.y += 0.01;
     }
 
     this.renderer.render(this.scene, this.camera);
