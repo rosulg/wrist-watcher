@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { OBJLoader } from 'three-addons';
+import {MTLLoader, OBJLoader} from 'three-obj-mtl-loader';
 
 export class Hand {
     private readonly color: number;
@@ -9,8 +9,17 @@ export class Hand {
     }
 
     async load(): Promise<THREE.Object3D> {
+        const mtlLoader = new MTLLoader();
+        const materials = await new Promise(resolve => {
+            mtlLoader.load('assets/models/hand.mtl', mat => {
+                resolve(mat);
+            });
+        });
+
         return new Promise(res => {
-            new OBJLoader().load(
+            const objLoader = new OBJLoader();
+            objLoader.setMaterials(materials);
+            objLoader.load(
                 './assets/models/hand.obj',
                 (obj) => {
                     const hand = obj.getObjectByName('hand');

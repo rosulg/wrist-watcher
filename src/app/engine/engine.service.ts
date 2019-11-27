@@ -1,10 +1,9 @@
 import {Injectable, ElementRef, OnDestroy, NgZone } from '@angular/core';
 import * as THREE from 'three';
-import { OBJLoader } from 'three-addons';
 import { Hand } from '../models/hand';
 import { TwoToneWatch } from '../models/two-tone-watch';
 import {toRad} from '../helpers/helpers';
-import {BehaviorSubject, Subscription} from 'rxjs';
+import {Subscription} from 'rxjs';
 import { OrbitControls } from '@avatsaev/three-orbitcontrols-ts';
 import {SidebarAction, SidebarNotificationService} from '../services/sidebar-notification.service';
 
@@ -17,7 +16,6 @@ export class EngineService implements OnDestroy {
   private camera: THREE.PerspectiveCamera;
   private scene: THREE.Scene;
   private light: THREE.AmbientLight;
-  private objLoader: OBJLoader;
   controls = null;
   private group: THREE.Group;
   private sidebarAction: SidebarAction;
@@ -25,7 +23,6 @@ export class EngineService implements OnDestroy {
   private frameId: number = null;
 
   public constructor(private ngZone: NgZone, private sidebarNotificationService: SidebarNotificationService) {
-    this.objLoader = new OBJLoader();
     this.sidebarActionSubscription = sidebarNotificationService.observable.subscribe(res => {
       this.sidebarAction = res;
       this.changeCameraPosition(this.sidebarAction);
