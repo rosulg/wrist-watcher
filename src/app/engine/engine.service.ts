@@ -88,7 +88,8 @@ export class EngineService implements OnDestroy {
     const hand = await new Hand(0xfffbf5).load();
     const watch = await new TwoToneWatch(0x00ff00).load();
     // Center the hand in the world center
-    hand.position.set(0.4, -2.6, -0.5);
+    hand.position.set(0.25, -2.15, -0.5);
+    hand.scale.set(2.5, 2.5, 2.5);
 
     // Rotate the watch to match the hand wrist location
     watch.rotation.set(
