@@ -99,6 +99,7 @@ export class EngineService implements OnDestroy {
     );
     // Position the watch on-top of the wrist.
     watch.position.set(-0.1, -0.175, -0.05);
+    watch.scale.set(0.4, 0.4, 0.4);
 
     this.group = new THREE.Group();
     this.group.position.set(0, 0, 0);

@@ -8,19 +8,14 @@ export class Hand {
         this.color = color;
     }
 
-    get obj(): Promise<THREE.Object3D> {
-        return this.load();
-    }
-
     async load(): Promise<THREE.Object3D> {
         return new Promise(async res => {
-            // Load texture materials
+            // Load the model
             var loader = new GLTFLoader();
             loader.load(
-                'assets/models/hand_gltf.gltf',
+                'assets/models/hand.gltf',
                 ( gltf ) => {
                     // called when the resource is loaded
-                    console.log(gltf.scene);
                     return res(gltf.scene);
                 },
                 ( xhr ) => {
