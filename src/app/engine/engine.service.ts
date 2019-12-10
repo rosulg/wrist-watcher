@@ -88,8 +88,7 @@ export class EngineService implements OnDestroy {
     const hand = await new Hand(0xfffbf5).load();
     const watch = await new TwoToneWatch(0x00ff00).load();
     // Center the hand in the world center
-    hand.position.set(0.25, -2.15, -0.5);
-    hand.scale.set(2.5, 2.5, 2.5);
+    hand.position.set(0.0, 0.0, 0.0);
 
     // Rotate the watch to match the hand wrist location
     watch.rotation.set(
@@ -98,8 +97,7 @@ export class EngineService implements OnDestroy {
         toRad(-30),
     );
     // Position the watch on-top of the wrist.
-    watch.position.set(-0.1, -0.175, -0.05);
-    watch.scale.set(0.4, 0.4, 0.4);
+    watch.position.set(0.0, 0.0, 0.0);
 
     this.group = new THREE.Group();
     this.group.position.set(0, 0, 0);
