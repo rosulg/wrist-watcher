@@ -6,6 +6,8 @@ import {toRad} from '../helpers/helpers';
 import {Subscription} from 'rxjs';
 import { OrbitControls } from '@avatsaev/three-orbitcontrols-ts';
 import {SidebarAction, SidebarNotificationService} from '../services/sidebar-notification.service';
+import {TwoToneWatchLink} from '../models/two-tone-watch-link';
+import {TwoToneWatchLock} from '../models/two-tone-watch-lock';
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +23,16 @@ export class EngineService implements OnDestroy {
   private sidebarAction: SidebarAction;
   private sidebarActionSubscription: Subscription;
   private frameId: number = null;
+  private spline;
+  private splineLine;
+  private linkMeshes = [];
+  private clock = new THREE.Clock();
+  private link;
+  private linkLength = 0.05;
+  private lock;
+  private watch;
+  private hand;
+
 
   public constructor(private ngZone: NgZone, private sidebarNotificationService: SidebarNotificationService) {
     this.sidebarActionSubscription = sidebarNotificationService.observable.subscribe(res => {
@@ -85,26 +97,109 @@ export class EngineService implements OnDestroy {
     this.scene.add( pointLight );
 
 
-    const hand = await new Hand(0xfffbf5).load();
-    const watch = await new TwoToneWatch(0x00ff00).load();
+    this.hand = await new Hand(0xfffbf5).load();
+    this.watch = await new TwoToneWatch(0x00ff00).load();
+    this.link = await new TwoToneWatchLink(0x00ff00).load();
+    this.lock = await new TwoToneWatchLock(0x00ff00).load();
+    this.lock.scale.set(0.4, 0.4, 0.4)
+    this.link.scale.set(0.4, 0.4, 0.4);
+
     // Center the hand in the world center
-    hand.position.set(0.25, -2.15, -0.5);
-    hand.scale.set(2.5, 2.5, 2.5);
+    this.hand.position.set(0.75, -1.8, -1);
+    this.hand.scale.set(2.5, 2.5, 2.5);
+    this.hand.rotation.set(toRad(10), toRad(25), toRad(15))
 
     // Rotate the watch to match the hand wrist location
-    watch.rotation.set(
-        toRad(270),
-        toRad(15),
-        toRad(-30),
+    this.watch.rotation.set(
+        toRad(0),
+        toRad(0),
+        toRad(0),
     );
     // Position the watch on-top of the wrist.
-    watch.position.set(-0.1, -0.175, -0.05);
-    watch.scale.set(0.4, 0.4, 0.4);
+    this.watch.position.set(0, 0, 0);
+    this.watch.scale.set(0.4, 0.4, 0.4);
 
     this.group = new THREE.Group();
     this.group.position.set(0, 0, 0);
-    this.group.add(hand, watch);
+    this.group.add(
+        this.hand,
+        this.watch);
     this.scene.add(this.group);
+    // this.scene.add(this.lock)
+    this.splineLine = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: 'purple'}));
+    // this.scene.add(this.splineLine);
+    this.createPoolOfLinkMeshes();
+    this.updateHandSurroundingSpline(null, 0);
+    this.positionLinkMeshes();
+    this.linkMeshes.forEach(mesh => this.group.add(mesh));
+  }
+
+  positionLinkMeshes() {
+
+
+    for (let i = 0; i < this.linkMeshes.length; i++) {
+      this.linkMeshes[i].visible = false;
+    }
+
+
+    const meshLength = this.linkLength;
+    let count = this.spline.getLength() / meshLength;
+    const offset = count - Math.floor(count);
+    count = Math.floor(count);
+
+    const splineStep = 1 / count;
+    // let points = spline.get
+    // let previousPoint = new THREE.Vector3();
+
+    for (let i = 0; i <= count; i++) {
+      const idx = i % count;
+      this.linkMeshes[idx].visible = true;
+      this.spline.getPointAt(idx * splineStep, this.linkMeshes[idx].position);
+      // this.linkMeshes[idx].lookAt(new THREE.Vector3().cross(new THREE.Vector3(0, 0.6, 0)).normalize());
+      const link = this.linkMeshes[idx];
+      // Create vector u that is a vector from the origin of the link to the origin of the watch
+      const u = new THREE.Vector3().copy(this.watch.position).sub(link.position);
+      // Measure tha angle between the up vector and u
+      const dot = u.dot(new THREE.Vector3(0, 1, 0))
+      const angle = Math.acos(dot);
+
+      console.log(angle * (180 / Math.PI), link.position.z);
+
+      // If angle is steep enough then rotate the links so the correct side would face the watch
+      if (angle > toRad(0)) {
+        // If pos on the right side turn right, if left turn left
+        u.applyAxisAngle(new THREE.Vector3(1, 0, 0), link.position.z > 0 ? -angle : angle);
+      }
+
+      // Set the lookAt, this rotates the link
+      this.linkMeshes[idx].lookAt(u);
+    }
+  }
+
+  updateHandSurroundingSpline(scale, x) {
+    const controlPoints = [
+      new THREE.Vector3( 0, this.watch.position.y - 0.02, this.watch.position.z + 0.25),
+      new THREE.Vector3( 0, this.watch.position.y - 0.2, this.watch.position.z + 0.34),
+      // Hand looking from the fingers to the left
+      new THREE.Vector3( 0, -0.35, this.hand.position.z + 1.25),
+      // Hand looking from the fingers to the right
+      new THREE.Vector3( 0, -0.35, this.hand.position.z + 0.7273),
+      new THREE.Vector3( 0,  this.watch.position.y - 0.15, this.watch.position.z - 0.3),
+      new THREE.Vector3( 0,  this.watch.position.y, this.watch.position.z - 0.2),
+    ];
+    this.spline = new THREE.CatmullRomCurve3(controlPoints, false);
+    const length = this.spline.getLength();
+
+    const points = this.spline.getPoints(length / this.linkLength);
+    this.splineLine.geometry.setFromPoints(points);
+  }
+
+  createPoolOfLinkMeshes() {
+    for (let i = 0; i < 500; i++) {
+      const clone = this.link.clone();
+      this.linkMeshes.push(clone);
+      this.scene.add(clone);
+    }
   }
 
   animate(): void {

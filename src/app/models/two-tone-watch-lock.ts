@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 
-export class TwoToneWatch {
+export class TwoToneWatchLock {
     private readonly color: number;
 
     constructor(color: number) {
@@ -14,10 +14,10 @@ export class TwoToneWatch {
             // Load the model
             const loader = new GLTFLoader();
             loader.load(
-                'assets/models/two-tone-watch.gltf',
+                'assets/models/two-tone-watch-lock.gltf',
                 ( gltf ) => {
                     // called when the resource is loaded
-                    return res(gltf.scene);
+                    return res(gltf.scene.getObjectByName('two-tone-watch001'));
                 },
                 ( xhr ) => {
                     // called while loading is progressing
