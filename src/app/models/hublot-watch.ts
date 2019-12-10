@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { OBJLoader } from 'three-obj-mtl-loader';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 export class HublotWatch {
     private readonly color: number;
@@ -8,26 +8,24 @@ export class HublotWatch {
         this.color = color;
     }
 
-    get obj(): Promise<THREE.Object3D> {
-        return this.load();
-    }
-
     async load(): Promise<THREE.Object3D> {
         return new Promise(res => {
-            new OBJLoader().load(
-                './assets/models/hublot-watch.obj',
-                (obj) => {
-                    obj.name = 'Hublot';
-                    obj.scale.set(0.01, 0.01, 0.01);
-                    // Loop over children meshes and change the color of them
-                    obj.children.forEach(child => {
-                        if (child.material.color) {
-                            child.material.color.setHex(this.color);
-                        }
-                    });
-
-                    return res(obj);
-                }
+            // Load the model
+            var loader = new GLTFLoader();
+            loader.load(
+                'assets/models/hublot-watch.gltf',
+                ( gltf ) => {
+                    // called when the resource is loaded
+                    return res(gltf.scene);
+                },
+                ( xhr ) => {
+                    // called while loading is progressing
+                    console.log( `${( xhr.loaded / xhr.total * 100 )}% loaded` );
+                },
+                ( error ) => {
+                    // called when loading has errors
+                    console.error( 'An error happened', error );
+                },
             );
         });
     }

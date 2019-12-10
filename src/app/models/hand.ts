@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {MTLLoader, OBJLoader} from 'three-obj-mtl-loader';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 export class Hand {
     private readonly color: number;
@@ -9,25 +9,23 @@ export class Hand {
     }
 
     async load(): Promise<THREE.Object3D> {
-        const mtlLoader = new MTLLoader();
-        const materials = await new Promise(resolve => {
-            mtlLoader.load('assets/models/hand.mtl', mat => {
-                resolve(mat);
-            });
-        });
-
-        return new Promise(res => {
-            const objLoader = new OBJLoader();
-            objLoader.setMaterials(materials);
-            objLoader.load(
-                './assets/models/hand.obj',
-                (obj) => {
-                    const hand = obj.getObjectByName('hand');
-                    hand.scale.set(3, 3, 3);
-                    hand.material.color.setHex(this.color);
-
-                    return res(hand);
-                }
+        return new Promise(async res => {
+            // Load the model
+            var loader = new GLTFLoader();
+            loader.load(
+                'assets/models/hand.gltf',
+                ( gltf ) => {
+                    // called when the resource is loaded
+                    return res(gltf.scene);
+                },
+                ( xhr ) => {
+                    // called while loading is progressing
+                    console.log( `${( xhr.loaded / xhr.total * 100 )}% loaded` );
+                },
+                ( error ) => {
+                    // called when loading has errors
+                    console.error( 'An error happened', error );
+                },
             );
         });
     }
