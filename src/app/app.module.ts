@@ -7,6 +7,8 @@ import { UiInfobarTopComponent } from './ui/ui-infobar-top/ui-infobar-top.compon
 import { UiSidebarLeftComponent } from './ui/ui-sidebar-left/ui-sidebar-left.component';
 import { UiSidebarRightComponent } from './ui/ui-sidebar-right/ui-sidebar-right.component';
 import { UiComponent } from './ui/ui.component';
+import { SimpleSidenavModule } from 'simple-sidenav';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -19,7 +21,9 @@ import { UiComponent } from './ui/ui.component';
     UiSidebarRightComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    SimpleSidenavModule,
+    BrowserAnimationsModule
   ],
   providers: [
   ],

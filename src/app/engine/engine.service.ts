@@ -26,6 +26,7 @@ export class EngineService implements OnDestroy {
     this.sidebarActionSubscription = sidebarNotificationService.observable.subscribe(res => {
       this.sidebarAction = res;
       this.changeCameraPosition(this.sidebarAction);
+      this.rotateHandSlider(this.sidebarAction)
     }, err => console.log(err));
   }
 
@@ -133,8 +134,9 @@ export class EngineService implements OnDestroy {
 
     // NB! Rotate all objects inside this if statement. Otherwise toggling rotation will not work!
     if (this.group && this.sidebarAction && this.sidebarAction.rotate) {
-      this.group.rotation.x += 0.01;
-      this.group.rotation.y += 0.01;
+      //this.group.rotation.x += 0.01;
+      //this.group.rotation.y += 0.01;
+      
     }
 
     this.renderer.render(this.scene, this.camera);
@@ -152,8 +154,16 @@ export class EngineService implements OnDestroy {
 
   private changeCameraPosition(action: SidebarAction) {
     if (this.camera && action) {
-      this.camera.position.z = action.backward ? -7 : 5;
+      this.camera.position.z = action.zoom;
       this.camera.lookAt(new THREE.Vector3());
+    }
+  }
+
+  private rotateHandSlider(action: SidebarAction) {
+    if(this.group && action){
+      this.group.rotation.z = action.z_hand_rotation * Math.PI/180
+      this.group.rotation.x = action.x_hand_rotation * Math.PI/180
+      this.group.rotation.y = action.y_hand_rotation * Math.PI/180
     }
   }
 

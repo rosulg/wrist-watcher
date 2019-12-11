@@ -2,3 +2,27 @@
     <button [ngStyle]="{'background-color': backward ? 'limegreen' : 'crimson'}" class="action-button" (click)="toggleForward()">Backward</button>
     <button [ngStyle]="{'background-color': rotate ? 'limegreen' : 'crimson'}" class="action-button" (click)="toggleRotation()">Rotate</button>
 </div>
+
+<sm-simple-sidenav class="sidenav-custom"
+  [menu]="menu"
+  [animation]="animation"
+  [withArrow]="true"
+  (onSidenav)="onClick($event)">
+</sm-simple-sidenav>
+
+<div class="slider" id="handSliders">
+    <div></div>
+    <div class="slidecontainer">
+        <p>x</p>
+        <input type="range" min="1" max="359" value="50"  id="myRangeHandX" #rangerx (input)="passHandRotationX(rangerx.value)">
+        <p>y</p>
+        <input type="range" min="1" max="359" value="50"  id="myRangeHandY" #rangery (input)="passHandRotationY(rangery.value)">
+        <p>z</p>
+        <input type="range" min="1" max="359" value="50"  id="myRangeHandZ" #rangerz (input)="passHandRotationZ(rangerz.value)">
+    </div>
+</div>
+
+<div class="zoomslider" id = "zoomslider">
+        <p>zoom</p>
+        <input type="range" min="1" max="10" value="2"  id="myRangeZoom" #rangerzoom (input)="cameraZoom(rangerzoom.value)">
+</div>

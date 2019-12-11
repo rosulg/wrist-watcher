@@ -4,6 +4,11 @@ import {BehaviorSubject, Observable} from 'rxjs';
 export interface SidebarAction {
   rotate: boolean;
   backward: boolean;
+  x_hand_rotation: number;
+  y_hand_rotation: number;
+  z_hand_rotation: number;
+  has_sliders: boolean;
+  zoom: number;
 }
 
 @Injectable({
