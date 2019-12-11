@@ -154,13 +154,28 @@ export class EngineService implements OnDestroy {
 
   private changeCameraPosition(action: SidebarAction) {
     if (this.camera && action) {
-      this.camera.position.z = action.zoom;
-      this.camera.lookAt(new THREE.Vector3());
+      if (action.did_zoom) {
+        this.camera.position.z = action.zoom;
+        this.camera.lookAt(new THREE.Vector3());
+      } else {
+        this.group.position.set(0, 0, 0);
+        if (action.viewPosition === "top") {
+          this.camera.position.set(0, 2, 0)
+          this.camera.lookAt(new THREE.Vector3())
+        } else if (action.viewPosition === "left") {
+          this.camera.position.set(1, 1, -3)
+          this.camera.lookAt(new THREE.Vector3())
+        } else if (action.viewPosition === "right") {
+          this.camera.position.set(-1, 1, 1)
+          this.camera.lookAt(new THREE.Vector3())
+        }
+      }      
     }
   }
+  
 
   private rotateHandSlider(action: SidebarAction) {
-    if(this.group && action){
+    if (this.group && action) {
       this.group.rotation.z = action.z_hand_rotation * Math.PI/180
       this.group.rotation.x = action.x_hand_rotation * Math.PI/180
       this.group.rotation.y = action.y_hand_rotation * Math.PI/180
