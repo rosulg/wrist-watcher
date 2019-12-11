@@ -134,8 +134,8 @@ export class EngineService implements OnDestroy {
 
     // NB! Rotate all objects inside this if statement. Otherwise toggling rotation will not work!
     if (this.group && this.sidebarAction && this.sidebarAction.rotate) {
-      //this.group.rotation.x += 0.01;
-      //this.group.rotation.y += 0.01;
+      this.group.rotation.x += 0.01;
+      this.group.rotation.y += 0.01;
       
     }
 

@@ -1,0 +1,65 @@
+.sidenav-custom{
+  .simple-sidenav {
+    max-width: 360px;
+    overflow: hidden;
+  
+    &__item {
+      margin-top: 3px;
+      overflow: hidden;
+    }
+  
+    &__item-content {
+      position: relative;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      background-color: 	#228B22;
+      padding: 5px 15px;
+      border-radius: 4px;
+  
+      &:hover {
+        cursor: pointer;
+      }
+    }
+  
+    &__icon {
+      height: 35px;
+      margin-right: 8px;
+    }
+  
+    &__text {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      color: black;
+    }
+  
+    &__arrow {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      right: 12px;
+      top: 50%;
+      transform: translate(0, -50%);
+    }
+  
+    .active {
+      background-color: #43ca43;
+    }
+  }
+  
+  .simple-sidenav-submenu {
+    .simple-sidenav {
+      padding-left: 15px;
+    }
+  }
+  
+}
+
+.slider {
+  display: none;
+}
+
+.zoomslider{
+  display: none;
+}
