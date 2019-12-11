@@ -9,8 +9,8 @@ import {SidebarNotificationService} from '../../services/sidebar-notification.se
 })
 export class UiSidebarLeftComponent {
 
-  private rotate = false;
-  private backward = false;
+  rotate = false;
+  backward = false;
 
   constructor(private sidebarNotificationService: SidebarNotificationService) { }
 
