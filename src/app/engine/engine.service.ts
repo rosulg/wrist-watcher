@@ -136,7 +136,6 @@ export class EngineService implements OnDestroy {
     if (this.group && this.sidebarAction && this.sidebarAction.rotate) {
       this.group.rotation.x += 0.01;
       this.group.rotation.y += 0.01;
-      
     }
 
     this.renderer.render(this.scene, this.camera);

@@ -41,6 +41,7 @@ onClick(item: {id: number|string, name: string, icon: string, index: number}) {
   var y = document.getElementById("zoomslider");
   x.style.display = "none";
   y.style.display = "none";
+
   if (item !=null) {
     if (item.id === '2') {
       x.style.display = "block";
@@ -61,9 +62,6 @@ onClick(item: {id: number|string, name: string, icon: string, index: number}) {
     }
     this.viewPosition = "none";
   }
-
- 
-  
   }
 
   constructor(private sidebarNotificationService: SidebarNotificationService) { }
@@ -83,16 +81,10 @@ onClick(item: {id: number|string, name: string, icon: string, index: number}) {
     this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
   }
 
-  toggleRotation() {
-    this.rotate = !this.rotate;
-    this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
-  }
-
   cameraZoom(value) {
     this.zoom = value;
     this.did_zoom = true;
     this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
     this.did_zoom = false;
   }
-
 }
