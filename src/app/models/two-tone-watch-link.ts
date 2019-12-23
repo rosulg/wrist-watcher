@@ -1,32 +1,27 @@
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import {MTLLoader, OBJLoader} from 'three-obj-mtl-loader';
 
 
 export class TwoToneWatchLink {
-    private readonly color: number;
-
-    constructor(color: number) {
-        this.color = color;
-    }
 
     async load(): Promise<THREE.Object3D> {
         return new Promise(async res => {
-            // Load the model
-            const loader = new GLTFLoader();
-            loader.load(
-                'assets/models/two-tone-watch-link.gltf',
-                ( gltf ) => {
-                    // called when the resource is loaded
-                    return res(gltf.scene.getObjectByName('two-tone-watch005'));
-                },
-                ( xhr ) => {
-                    // called while loading is progressing
-                    console.log( `${( xhr.loaded / xhr.total * 100 )}% loaded` );
-                },
-                ( error ) => {
-                    // called when loading has errors
-                    console.error( 'An error happened', error );
-                },
+            // Load texture materials
+            const materials = await new Promise(resolve => {
+                new MTLLoader().load('./assets/models/two-tone-watch-link.mtl', mat => {
+                    resolve(mat);
+                });
+            });
+
+            const objLoader = new OBJLoader();
+            objLoader.setMaterials(materials);
+            // Load object
+            objLoader.load(
+                './assets/models/two-tone-watch-link.obj',
+                (obj) => {
+                    console.log('return sth')
+                    return res(obj.getObjectByName('two-tone-watch.005'));
+                }
             );
         });
     }
