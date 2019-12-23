@@ -26,7 +26,7 @@ export class EngineService implements OnDestroy {
   private splineLine;
   private linkMeshes = [];
   private link = new THREE.Group();
-  private linkLength = 0.1;
+  private linkLength = 0.09;
   private watch;
   private hand;
 
@@ -120,7 +120,7 @@ export class EngineService implements OnDestroy {
     this.scene.add(this.group);
     this.splineLine = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: 'purple'}));
     this.createPoolOfLinkMeshes();
-    this.updateHandSurroundingSpline(null, 0);
+    this.createHandSurroundingSpline();
     this.positionLinkMeshes();
     this.linkMeshes.forEach(mesh => this.group.add(mesh));
   }
@@ -148,28 +148,28 @@ export class EngineService implements OnDestroy {
     }
   }
 
-  updateHandSurroundingSpline(scale, x) {
-    // const controlPoints = [
-    //   new THREE.Vector3( 0, this.watch.position.y - 0.02, this.watch.position.z + 0.25),
-    //   new THREE.Vector3( 0, this.watch.position.y - 0.2, this.watch.position.z + 0.34),
-    //   // Hand looking from the fingers to the left
-    //   new THREE.Vector3( 0, -0.35, this.hand.position.z + 1.25),
-    //   // Hand looking from the fingers to the right
-    //   new THREE.Vector3( 0, -0.35, this.hand.position.z + 0.7273),
-    //   new THREE.Vector3( 0,  this.watch.position.y - 0.15, this.watch.position.z - 0.3),
-    //   new THREE.Vector3( 0,  this.watch.position.y, this.watch.position.z - 0.2),
-    // ];
-
+  createHandSurroundingSpline() {
     const controlPoints = [
-      new THREE.Vector3( 0, 0, 0.7),
-      new THREE.Vector3( 0, 0.4, 0.5),
-      new THREE.Vector3(  0, 0.5, 0),
-      new THREE.Vector3(0, 0.4, -0.5),
-      new THREE.Vector3(0, 0, -0.7),
-      new THREE.Vector3(0, -0.4, -0.5),
-      new THREE.Vector3(  0, -0.5, 0),
-      new THREE.Vector3(0, -0.4, 0.5),
+      new THREE.Vector3( 0, this.watch.position.y, this.watch.position.z + 0.25),
+      new THREE.Vector3( 0, this.watch.position.y - 0.2, this.watch.position.z + 0.34),
+      // Hand looking from the fingers to the left
+      new THREE.Vector3( 0, -0.365, this.hand.position.z + 1.25),
+      // Hand looking from the fingers to the right
+      new THREE.Vector3( 0, -0.365, this.hand.position.z + 0.7273),
+      new THREE.Vector3( 0,  this.watch.position.y - 0.15, this.watch.position.z - 0.3),
+      new THREE.Vector3( 0,  this.watch.position.y, this.watch.position.z - 0.25),
     ];
+
+    // const controlPoints = [
+    //   new THREE.Vector3( 0, 0, 0.7),
+    //   new THREE.Vector3( 0, 0.4, 0.5),
+    //   new THREE.Vector3(  0, 0.5, 0),
+    //   new THREE.Vector3(0, 0.4, -0.5),
+    //   new THREE.Vector3(0, 0, -0.7),
+    //   new THREE.Vector3(0, -0.4, -0.5),
+    //   new THREE.Vector3(  0, -0.5, 0),
+    //   new THREE.Vector3(0, -0.4, 0.5),
+    // ];
 
     this.spline = new THREE.CatmullRomCurve3(controlPoints, true);
     const length = this.spline.getLength();
@@ -181,17 +181,13 @@ export class EngineService implements OnDestroy {
   createPoolOfLinkMeshes() {
     for (let i = 0; i < 50; i++) {
 
-      try {
-        console.log(this.link, 'link?');
-        const clone = this.link.clone();
-        clone.position.set(0, 0, 0);
-        this.scene.add(clone);
+      const clone = this.link.clone();
+      clone.position.set(0, 0, 0);
+      this.scene.add(clone);
 
-        clone.add(new THREE.AxesHelper( 1 ));
-        this.linkMeshes.push(clone);
-      } catch (err) {
-        // supress
-      }
+      // For debugging
+      // clone.add(new THREE.AxesHelper( 1 ));
+      this.linkMeshes.push(clone);
 
     }
   }
