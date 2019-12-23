@@ -22,13 +22,17 @@ export class EngineService implements OnDestroy {
   private sidebarAction: SidebarAction;
   private sidebarActionSubscription: Subscription;
   private frameId: number = null;
-  private spline;
-  private splineLine;
-  private linkMeshes = [];
-  private link = new THREE.Group();
-  private linkLength = 0.09;
+
   private watch;
   private hand;
+
+  // bracelet related
+  private braceletSpline: THREE.CatmullRomCurve3;
+  private braceletSplineLine: THREE.Line = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: 'purple'}));
+  private braceletLinks: THREE.Group[] = [];
+
+  private braceletLink = new THREE.Group();
+  private braceletLinkLength = 0.09;
 
 
   public constructor(private ngZone: NgZone, private sidebarNotificationService: SidebarNotificationService) {
@@ -83,7 +87,6 @@ export class EngineService implements OnDestroy {
     this.configControls();
 
 
-
     // soft white light
     this.light = new THREE.AmbientLight( 0x404040 );
     this.light.position.z = 10;
@@ -96,8 +99,8 @@ export class EngineService implements OnDestroy {
 
     this.hand = await new Hand(0xfffbf5).load();
     this.watch = await new TwoToneWatch().load();
-    this.link.add( await new TwoToneWatchLink().load())
-    this.link.scale.set(0.4, 0.4, 0.4);
+    this.braceletLink.add( await new TwoToneWatchLink().load())
+    this.braceletLink.scale.set(0.4, 0.4, 0.4);
 
     // Center the hand in the world center
     this.hand.position.set(0.75, -1.8, -1);
@@ -118,37 +121,36 @@ export class EngineService implements OnDestroy {
     this.group.position.set(0, 0, 0);
     this.group.add(this.hand, this.watch);
     this.scene.add(this.group);
-    this.splineLine = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: 'purple'}));
-    this.createPoolOfLinkMeshes();
+    this.createPoolOfBraceletLinks();
     this.createHandSurroundingSpline();
-    this.positionLinkMeshes();
-    this.linkMeshes.forEach(mesh => this.group.add(mesh));
+    this.positionBraceletLinks();
+    this.braceletLinks.forEach(mesh => this.group.add(mesh));
   }
 
-  positionLinkMeshes() {
-    for (let i = 0; i < this.linkMeshes.length; i++) {
-      this.linkMeshes[i].visible = false;
+  positionBraceletLinks() {
+    for (let i = 0; i < this.braceletLinks.length; i++) {
+      this.braceletLinks[i].visible = false;
     }
 
-    const meshLength = this.linkLength;
-    let count = this.spline.getLength() / meshLength;
+    const meshLength = this.braceletLinkLength;
+    let count = this.braceletSpline.getLength() / meshLength;
     count = Math.floor(count);
 
     const splineStep = 1 / count;
 
     for (let i = 0; i <= count; i++) {
       const idx = i % count;
-      this.linkMeshes[idx].visible = true;
+      this.braceletLinks[idx].visible = true;
 
-      this.spline.getPointAt(idx * splineStep, this.linkMeshes[idx].position);
-      const tan = this.spline.getTangentAt(idx * splineStep);
-      const lookAt = new THREE.Vector3().copy(tan).add(this.linkMeshes[idx].position);
-      this.linkMeshes[idx].up.copy(this.linkMeshes[idx].position).multiplyScalar(1).normalize();
-      this.linkMeshes[idx].lookAt(lookAt);
+      this.braceletSpline.getPointAt(idx * splineStep, this.braceletLinks[idx].position);
+      const tan = this.braceletSpline.getTangentAt(idx * splineStep);
+      const lookAt = new THREE.Vector3().copy(tan).add(this.braceletLinks[idx].position);
+      this.braceletLinks[idx].up.copy(this.braceletLinks[idx].position).multiplyScalar(1).normalize();
+      this.braceletLinks[idx].lookAt(lookAt);
     }
   }
 
-  createHandSurroundingSpline() {
+  private createHandSurroundingSpline() {
     const controlPoints = [
       new THREE.Vector3( 0, this.watch.position.y, this.watch.position.z + 0.25),
       new THREE.Vector3( 0, this.watch.position.y - 0.2, this.watch.position.z + 0.34),
@@ -160,34 +162,23 @@ export class EngineService implements OnDestroy {
       new THREE.Vector3( 0,  this.watch.position.y, this.watch.position.z - 0.25),
     ];
 
-    // const controlPoints = [
-    //   new THREE.Vector3( 0, 0, 0.7),
-    //   new THREE.Vector3( 0, 0.4, 0.5),
-    //   new THREE.Vector3(  0, 0.5, 0),
-    //   new THREE.Vector3(0, 0.4, -0.5),
-    //   new THREE.Vector3(0, 0, -0.7),
-    //   new THREE.Vector3(0, -0.4, -0.5),
-    //   new THREE.Vector3(  0, -0.5, 0),
-    //   new THREE.Vector3(0, -0.4, 0.5),
-    // ];
+    this.braceletSpline = new THREE.CatmullRomCurve3(controlPoints, true);
+    const length = this.braceletSpline.getLength();
 
-    this.spline = new THREE.CatmullRomCurve3(controlPoints, true);
-    const length = this.spline.getLength();
-
-    const points = this.spline.getPoints(length / this.linkLength);
-    this.splineLine.geometry.setFromPoints(points);
+    const points = this.braceletSpline.getPoints(length / this.braceletLinkLength);
+    this.braceletSplineLine.geometry.setFromPoints(points);
   }
 
-  createPoolOfLinkMeshes() {
+  private createPoolOfBraceletLinks() {
     for (let i = 0; i < 50; i++) {
 
-      const clone = this.link.clone();
+      const clone = this.braceletLink.clone();
       clone.position.set(0, 0, 0);
       this.scene.add(clone);
 
       // For debugging
       // clone.add(new THREE.AxesHelper( 1 ));
-      this.linkMeshes.push(clone);
+      this.braceletLinks.push(clone);
 
     }
   }
