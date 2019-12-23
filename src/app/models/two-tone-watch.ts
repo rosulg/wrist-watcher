@@ -3,11 +3,6 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 
 export class TwoToneWatch {
-    private readonly color: number;
-
-    constructor(color: number) {
-        this.color = color;
-    }
 
     async load(): Promise<THREE.Object3D> {
         return new Promise(async res => {
