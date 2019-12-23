@@ -34,10 +34,9 @@ export class EngineService implements OnDestroy {
   private braceletLink = new THREE.Group();
   private braceletLinkLength = 0.09;
 
-  private rayCaster: THREE.Raycaster;
-  private intersections = [];
-
-  private isIntersectionsConsidered = false;
+  private rayCaster: THREE.Raycaster = new THREE.Raycaster();
+  private intersectionsPoints = [];
+  private isIntersectionPointsFound = false;
 
 
   public constructor(private ngZone: NgZone, private sidebarNotificationService: SidebarNotificationService) {
@@ -104,7 +103,7 @@ export class EngineService implements OnDestroy {
 
     this.hand = await new Hand(0xfffbf5).load();
     this.watch = await new TwoToneWatch().load();
-    this.braceletLink.add( await new TwoToneWatchLink().load());
+    this.braceletLink.add(await new TwoToneWatchLink().load());
     this.braceletLink.scale.set(0.4, 0.4, 0.4);
 
     // Center the hand in the world center
@@ -115,16 +114,41 @@ export class EngineService implements OnDestroy {
 
     this.group = new THREE.Group();
     this.group.position.set(0, 0, 0);
-    this.group.add(this.hand);
-    this.scene.add(this.group);
-    this.createPoolOfBraceletLinks();
-    this.createHandSurroundingSpline();
-    this.positionBraceletLinks();
 
-    const rayCasterOrigin = new THREE.Vector3(0, 5, 0);
-    const rayDirection = new THREE.Vector3().sub(rayCasterOrigin).normalize();
-    this.rayCaster = new THREE.Raycaster(rayCasterOrigin, rayDirection);
+    // Hide the watch until the intersection points from ray caster and hand have been found
+    this.watch.visible = false;
+
+    // Group hand and watch and add to the scene so they are displayed
+    this.group.add(this.hand, this.watch);
+    this.scene.add(this.group);
+
+    // Create bracelet objects so they can be used on render. This improves the performance
+    this.createPoolOfBraceletLinks();
+    // Add them all to the scene
     this.braceletLinks.forEach(mesh => this.group.add(mesh));
+
+    this.findIntersections();
+  }
+
+  private findIntersections(): void {
+    const firstIntersections = [];
+
+    for (let angle = 0; angle < 2 * Math.PI; angle += Math.PI / 4) {
+      const rayCasterOrigin = new THREE.Vector3(0, 5, 0).applyAxisAngle(new THREE.Vector3(1, 0, 0), angle);
+      const rayDirection = new THREE.Vector3().sub(rayCasterOrigin).normalize();
+      this.rayCaster.set(rayCasterOrigin, rayDirection);
+      const intersections = this.rayCaster.intersectObject(this.hand, true);
+
+      if (intersections && intersections.length) {
+
+        firstIntersections.push(intersections[0].point);
+      }
+    }
+
+    this.intersectionsPoints = firstIntersections;
+    if (firstIntersections.length === 8) {
+      this.isIntersectionPointsFound = true;
+    }
   }
 
   private positionBraceletLinks() {
@@ -140,7 +164,10 @@ export class EngineService implements OnDestroy {
 
     for (let i = 0; i <= count; i++) {
       const idx = i % count;
-      this.braceletLinks[idx].visible = true;
+      // Don't show first two links and two last links as it is not visually appealing
+      if (idx < count - 2 && idx > 1 && this.isIntersectionPointsFound) {
+        this.braceletLinks[idx].visible = true;
+      }
 
       this.braceletSpline.getPointAt(idx * splineStep, this.braceletLinks[idx].position);
       const tan = this.braceletSpline.getTangentAt(idx * splineStep);
@@ -150,17 +177,22 @@ export class EngineService implements OnDestroy {
     }
   }
 
-  private createHandSurroundingSpline() {
-    const controlPoints = [
-      new THREE.Vector3( 0, this.watch.position.y, this.watch.position.z + 0.25),
-      new THREE.Vector3( 0, this.watch.position.y - 0.2, this.watch.position.z + 0.34),
-      // Hand looking from the fingers to the left
-      new THREE.Vector3( 0, -0.365, this.hand.position.z + 1.25),
-      // Hand looking from the fingers to the right
-      new THREE.Vector3( 0, -0.365, this.hand.position.z + 0.7273),
-      new THREE.Vector3( 0,  this.watch.position.y - 0.15, this.watch.position.z - 0.3),
-      new THREE.Vector3( 0,  this.watch.position.y, this.watch.position.z - 0.25),
-    ];
+  private createHandSurroundingSpline(): void {
+    const controlPoints = this.intersectionsPoints.map((point, index) => {
+      // Give the bracelet a little room to breathe
+      if (index === 2) {
+        point.z = this.watch.position.z + 0.25;
+        point.y = this.watch.position.y;
+      } else if (index === 6) {
+        point.z = this.watch.position.z - 0.25;
+        point.y = this.watch.position.y;
+      } else if (index !== 0) {
+        point.z += point.z < 0 ? -0.025 : 0.025;
+        point.y += point.y < 0 ? -0.0425 : 0;
+      }
+
+      return point;
+    });
 
     this.braceletSpline = new THREE.CatmullRomCurve3(controlPoints, true);
     const length = this.braceletSpline.getLength();
@@ -169,7 +201,7 @@ export class EngineService implements OnDestroy {
     this.braceletSplineLine.geometry.setFromPoints(points);
   }
 
-  private createPoolOfBraceletLinks() {
+  private createPoolOfBraceletLinks(): void {
     for (let i = 0; i < 50; i++) {
 
       const clone = this.braceletLink.clone();
@@ -213,15 +245,14 @@ export class EngineService implements OnDestroy {
       this.group.rotation.y += 0.01;
     }
 
-    this.intersections = this.rayCaster.intersectObject(this.hand, true);
-    if (this.intersections.length > 0) {
-      if (!this.isIntersectionsConsidered) {
-        const point = this.intersections[0].point;
-        this.watch.position.set(point.x, point.y, point.z);
-        this.group.add(this.watch)
-        this.isIntersectionsConsidered = true;
-      }
+    this.findIntersections();
 
+    if (this.isIntersectionPointsFound) {
+      this.createHandSurroundingSpline();
+      this.positionBraceletLinks();
+      const point = this.intersectionsPoints[0];
+      this.watch.position.set(point.x, point.y, point.z);
+      this.watch.visible = true;
     }
 
     this.renderer.render(this.scene, this.camera);
