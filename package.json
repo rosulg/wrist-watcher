@@ -28,6 +28,7 @@
     "core-js": "^2.6.10",
     "rxjs": "~6.5.3",
     "three": "^0.109.0",
+    "three-obj-mtl-loader": "github:rosulg/three-obj-mtl-loader#b1d0d6183f891984aa30dfe8cbf29217ac4ce133",
     "three-orbit-controls": "^82.1.0",
     "zone.js": "~0.9.1"
   },
