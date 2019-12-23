@@ -34,6 +34,11 @@ export class EngineService implements OnDestroy {
   private braceletLink = new THREE.Group();
   private braceletLinkLength = 0.09;
 
+  private rayCaster: THREE.Raycaster;
+  private intersections = [];
+
+  private isIntersectionsConsidered = false;
+
 
   public constructor(private ngZone: NgZone, private sidebarNotificationService: SidebarNotificationService) {
     this.sidebarActionSubscription = sidebarNotificationService.observable.subscribe(res => {
@@ -99,31 +104,26 @@ export class EngineService implements OnDestroy {
 
     this.hand = await new Hand(0xfffbf5).load();
     this.watch = await new TwoToneWatch().load();
-    this.braceletLink.add( await new TwoToneWatchLink().load())
+    this.braceletLink.add( await new TwoToneWatchLink().load());
     this.braceletLink.scale.set(0.4, 0.4, 0.4);
 
     // Center the hand in the world center
     this.hand.position.set(0.75, -1.8, -1);
     this.hand.scale.set(2.5, 2.5, 2.5);
-    this.hand.rotation.set(toRad(10), toRad(25), toRad(15))
-
-    // Rotate the watch to match the hand wrist location
-    this.watch.rotation.set(
-        toRad(0),
-        toRad(0),
-        toRad(0),
-    );
-    // Position the watch on-top of the wrist.
-    this.watch.position.set(0, 0, 0);
+    this.hand.rotation.set(toRad(10), toRad(25), toRad(15));
     this.watch.scale.set(0.4, 0.4, 0.4);
 
     this.group = new THREE.Group();
     this.group.position.set(0, 0, 0);
-    this.group.add(this.hand, this.watch);
+    this.group.add(this.hand);
     this.scene.add(this.group);
     this.createPoolOfBraceletLinks();
     this.createHandSurroundingSpline();
     this.positionBraceletLinks();
+
+    const rayCasterOrigin = new THREE.Vector3(0, 5, 0);
+    const rayDirection = new THREE.Vector3().sub(rayCasterOrigin).normalize();
+    this.rayCaster = new THREE.Raycaster(rayCasterOrigin, rayDirection);
     this.braceletLinks.forEach(mesh => this.group.add(mesh));
   }
 
@@ -211,6 +211,17 @@ export class EngineService implements OnDestroy {
     if (this.group && this.sidebarAction && this.sidebarAction.rotate) {
       this.group.rotation.x += 0.01;
       this.group.rotation.y += 0.01;
+    }
+
+    this.intersections = this.rayCaster.intersectObject(this.hand, true);
+    if (this.intersections.length > 0) {
+      if (!this.isIntersectionsConsidered) {
+        const point = this.intersections[0].point;
+        this.watch.position.set(point.x, point.y, point.z);
+        this.group.add(this.watch)
+        this.isIntersectionsConsidered = true;
+      }
+
     }
 
     this.renderer.render(this.scene, this.camera);
