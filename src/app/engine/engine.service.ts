@@ -127,7 +127,7 @@ export class EngineService implements OnDestroy {
     this.braceletLinks.forEach(mesh => this.group.add(mesh));
   }
 
-  positionBraceletLinks() {
+  private positionBraceletLinks() {
     for (let i = 0; i < this.braceletLinks.length; i++) {
       this.braceletLinks[i].visible = false;
     }
