@@ -105,6 +105,7 @@ export class EngineService implements OnDestroy {
     this.watch = await new TwoToneWatch().load();
     this.braceletLink.add(await new TwoToneWatchLink().load());
     this.braceletLink.scale.set(0.4, 0.4, 0.4);
+    this.braceletLink.visible = false;
 
     // Center the hand in the world center
     this.hand.position.set(0.75, -1.8, -1);
@@ -245,14 +246,16 @@ export class EngineService implements OnDestroy {
       this.group.rotation.y += 0.01;
     }
 
-    this.findIntersections();
+    if (!this.sidebarAction) {
+      this.findIntersections();
 
-    if (this.isIntersectionPointsFound) {
-      this.createHandSurroundingSpline();
-      this.positionBraceletLinks();
-      const point = this.intersectionsPoints[0];
-      this.watch.position.set(point.x, point.y, point.z);
-      this.watch.visible = true;
+      if (this.isIntersectionPointsFound) {
+        this.createHandSurroundingSpline();
+        this.positionBraceletLinks();
+        const point = this.intersectionsPoints[0];
+        this.watch.position.set(point.x, point.y, point.z);
+        this.watch.visible = true;
+      }
     }
 
     this.renderer.render(this.scene, this.camera);
