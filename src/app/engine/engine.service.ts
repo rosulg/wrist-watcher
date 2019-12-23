@@ -6,6 +6,7 @@ import {toRad} from '../helpers/helpers';
 import {Subscription} from 'rxjs';
 import { OrbitControls } from '@avatsaev/three-orbitcontrols-ts';
 import {SidebarAction, SidebarNotificationService} from '../services/sidebar-notification.service';
+import {TwoToneWatchLink} from '../models/two-tone-watch-link';
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +22,18 @@ export class EngineService implements OnDestroy {
   private sidebarAction: SidebarAction;
   private sidebarActionSubscription: Subscription;
   private frameId: number = null;
+
+  private watch;
+  private hand;
+
+  // bracelet related
+  private braceletSpline: THREE.CatmullRomCurve3;
+  private braceletSplineLine: THREE.Line = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: 'purple'}));
+  private braceletLinks: THREE.Group[] = [];
+
+  private braceletLink = new THREE.Group();
+  private braceletLinkLength = 0.09;
+
 
   public constructor(private ngZone: NgZone, private sidebarNotificationService: SidebarNotificationService) {
     this.sidebarActionSubscription = sidebarNotificationService.observable.subscribe(res => {
@@ -74,7 +87,6 @@ export class EngineService implements OnDestroy {
     this.configControls();
 
 
-
     // soft white light
     this.light = new THREE.AmbientLight( 0x404040 );
     this.light.position.z = 10;
@@ -85,26 +97,90 @@ export class EngineService implements OnDestroy {
     this.scene.add( pointLight );
 
 
-    const hand = await new Hand(0xfffbf5).load();
-    const watch = await new TwoToneWatch(0x00ff00).load();
+    this.hand = await new Hand(0xfffbf5).load();
+    this.watch = await new TwoToneWatch().load();
+    this.braceletLink.add( await new TwoToneWatchLink().load())
+    this.braceletLink.scale.set(0.4, 0.4, 0.4);
+
     // Center the hand in the world center
-    hand.position.set(0.25, -2.15, -0.5);
-    hand.scale.set(2.5, 2.5, 2.5);
+    this.hand.position.set(0.75, -1.8, -1);
+    this.hand.scale.set(2.5, 2.5, 2.5);
+    this.hand.rotation.set(toRad(10), toRad(25), toRad(15))
 
     // Rotate the watch to match the hand wrist location
-    watch.rotation.set(
-        toRad(270),
-        toRad(15),
-        toRad(-30),
+    this.watch.rotation.set(
+        toRad(0),
+        toRad(0),
+        toRad(0),
     );
     // Position the watch on-top of the wrist.
-    watch.position.set(-0.1, -0.175, -0.05);
-    watch.scale.set(0.4, 0.4, 0.4);
+    this.watch.position.set(0, 0, 0);
+    this.watch.scale.set(0.4, 0.4, 0.4);
 
     this.group = new THREE.Group();
     this.group.position.set(0, 0, 0);
-    this.group.add(hand, watch);
+    this.group.add(this.hand, this.watch);
     this.scene.add(this.group);
+    this.createPoolOfBraceletLinks();
+    this.createHandSurroundingSpline();
+    this.positionBraceletLinks();
+    this.braceletLinks.forEach(mesh => this.group.add(mesh));
+  }
+
+  positionBraceletLinks() {
+    for (let i = 0; i < this.braceletLinks.length; i++) {
+      this.braceletLinks[i].visible = false;
+    }
+
+    const meshLength = this.braceletLinkLength;
+    let count = this.braceletSpline.getLength() / meshLength;
+    count = Math.floor(count);
+
+    const splineStep = 1 / count;
+
+    for (let i = 0; i <= count; i++) {
+      const idx = i % count;
+      this.braceletLinks[idx].visible = true;
+
+      this.braceletSpline.getPointAt(idx * splineStep, this.braceletLinks[idx].position);
+      const tan = this.braceletSpline.getTangentAt(idx * splineStep);
+      const lookAt = new THREE.Vector3().copy(tan).add(this.braceletLinks[idx].position);
+      this.braceletLinks[idx].up.copy(this.braceletLinks[idx].position).multiplyScalar(1).normalize();
+      this.braceletLinks[idx].lookAt(lookAt);
+    }
+  }
+
+  private createHandSurroundingSpline() {
+    const controlPoints = [
+      new THREE.Vector3( 0, this.watch.position.y, this.watch.position.z + 0.25),
+      new THREE.Vector3( 0, this.watch.position.y - 0.2, this.watch.position.z + 0.34),
+      // Hand looking from the fingers to the left
+      new THREE.Vector3( 0, -0.365, this.hand.position.z + 1.25),
+      // Hand looking from the fingers to the right
+      new THREE.Vector3( 0, -0.365, this.hand.position.z + 0.7273),
+      new THREE.Vector3( 0,  this.watch.position.y - 0.15, this.watch.position.z - 0.3),
+      new THREE.Vector3( 0,  this.watch.position.y, this.watch.position.z - 0.25),
+    ];
+
+    this.braceletSpline = new THREE.CatmullRomCurve3(controlPoints, true);
+    const length = this.braceletSpline.getLength();
+
+    const points = this.braceletSpline.getPoints(length / this.braceletLinkLength);
+    this.braceletSplineLine.geometry.setFromPoints(points);
+  }
+
+  private createPoolOfBraceletLinks() {
+    for (let i = 0; i < 50; i++) {
+
+      const clone = this.braceletLink.clone();
+      clone.position.set(0, 0, 0);
+      this.scene.add(clone);
+
+      // For debugging
+      // clone.add(new THREE.AxesHelper( 1 ));
+      this.braceletLinks.push(clone);
+
+    }
   }
 
   animate(): void {
