@@ -3,6 +3,8 @@ import { EngineService } from 'src/app/engine/engine.service';
 import {SidebarNotificationService} from '../../services/sidebar-notification.service';
 import { SimpleMenu } from 'simple-sidenav';
 import { SimpleAnimation } from 'simple-sidenav/lib/interfaces/simple-animation';
+import { SliderUpdaterService, Sliders } from 'src/app/services/slider-updater.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-ui-sidebar-left',
@@ -18,6 +20,8 @@ export class UiSidebarLeftComponent {
   private z_hand_rotation = 0;
   private did_zoom = false;
   private zoom = 5;
+  private sliders: Sliders;
+  private sliderSubscription: Subscription;
   
 
 menu: SimpleMenu[] = [{ "id": "1", "name": "Sliders", "menu": [
@@ -64,8 +68,19 @@ onClick(item: {id: number|string, name: string, icon: string, index: number}) {
   }
   }
 
-  constructor(private sidebarNotificationService: SidebarNotificationService) { }
+  constructor(private sidebarNotificationService: SidebarNotificationService, private sliderUpdaterService: SliderUpdaterService) { 
+    this.sliderSubscription = sliderUpdaterService.observable.subscribe(res => {
+      this.sliders = res;
+      this.updateSliders(this.sliders);
+    }, err => console.log(err));
+  } 
 
+  updateSliders(sliders: Sliders){
+    if(sliders){
+      (<HTMLInputElement>document.getElementById("myRangeZoom")).value = sliders.zoom.toString();
+      console.log(sliders.zoom)
+    }
+  }
   passHandRotationX(value){
     this.x_hand_rotation = value;
     this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});

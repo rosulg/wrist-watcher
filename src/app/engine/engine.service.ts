@@ -6,6 +6,8 @@ import {toRad} from '../helpers/helpers';
 import {Subscription} from 'rxjs';
 import { OrbitControls } from '@avatsaev/three-orbitcontrols-ts';
 import {SidebarAction, SidebarNotificationService} from '../services/sidebar-notification.service';
+import { SliderUpdaterService } from '../services/slider-updater.service';
+import { PerspectiveCamera } from 'three';
 
 @Injectable({
   providedIn: 'root'
@@ -16,13 +18,15 @@ export class EngineService implements OnDestroy {
   private camera: THREE.PerspectiveCamera;
   private scene: THREE.Scene;
   private light: THREE.AmbientLight;
-  controls = null;
+  private controls = null;
   private group: THREE.Group;
   private sidebarAction: SidebarAction;
   private sidebarActionSubscription: Subscription;
   private frameId: number = null;
+  private zoom: number;
 
-  public constructor(private ngZone: NgZone, private sidebarNotificationService: SidebarNotificationService) {
+
+  public constructor(private ngZone: NgZone, private sidebarNotificationService: SidebarNotificationService, private sliderUpdaterService: SliderUpdaterService) {
     this.sidebarActionSubscription = sidebarNotificationService.observable.subscribe(res => {
       this.sidebarAction = res;
       this.changeCameraPosition(this.sidebarAction);
@@ -44,9 +48,18 @@ export class EngineService implements OnDestroy {
     this.controls.autoRotate = false;
     this.controls.enableZoom = true;
     this.controls.enablePan = true;
+    this.controls.minDistance = 1;
+    this.controls.maxDistance = 10;
+    this.controls.update();
+    this.controls.addEventListener('change', this.updateSliders.bind(this));
     this.controls.update();
   }
 
+  updateSliders(){
+    this.zoom = this.controls.target.distanceTo( this.controls.object.position )
+    this.camera.zoom = this.zoom;
+    this.sliderUpdaterService.notify({zoom: this.zoom});
+  }
   async createScene(canvas: ElementRef<HTMLCanvasElement>): Promise<void> {
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = canvas.nativeElement;
@@ -154,8 +167,9 @@ export class EngineService implements OnDestroy {
   private changeCameraPosition(action: SidebarAction) {
     if (this.camera && action) {
       if (action.did_zoom) {
-        this.camera.position.z = action.zoom;
-        this.camera.lookAt(new THREE.Vector3());
+        this.camera.zoom = action.zoom;
+        this.camera.updateProjectionMatrix();
+        //console.log(this.camera.zoom)
       } else {
         this.group.position.set(0, 0, 0);
         if (action.viewPosition === "top") {
