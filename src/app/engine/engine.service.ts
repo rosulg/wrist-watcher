@@ -43,6 +43,9 @@ export class EngineService implements OnDestroy {
     this.sidebarActionSubscription = sidebarNotificationService.observable.subscribe(res => {
       this.sidebarAction = res;
       this.changeCameraPosition(this.sidebarAction);
+      if (this.sidebarAction && this.sidebarAction.slideValue) {
+        this.scaleHand(this.sidebarAction.slideValue);
+      }
     }, err => console.log(err));
   }
 
@@ -107,6 +110,8 @@ export class EngineService implements OnDestroy {
     this.braceletLink.visible = true;
 
     // Center the hand in the world center
+    // TODO: Remove this positioning later. This is for the bracelet to scale better
+    this.hand.position.x += 0.1;
     this.hand.rotation.set(toRad(0), toRad(215), toRad(160));
 
     this.group = new THREE.Group();
@@ -239,7 +244,7 @@ export class EngineService implements OnDestroy {
       this.group.rotation.y += 0.01;
     }
 
-    if (!this.sidebarAction) {
+    if (!this.sidebarAction || (this.sidebarAction && !this.sidebarAction.rotate)) {
       this.findIntersections();
 
       if (this.isIntersectionPointsFound) {
@@ -270,6 +275,12 @@ export class EngineService implements OnDestroy {
     if (this.camera && action) {
       this.camera.position.z = action.backward ? -7 : 5;
       this.camera.lookAt(new THREE.Vector3());
+    }
+  }
+
+  private scaleHand(scale: number): void {
+    if (this.hand) {
+      this.hand.scale.set(1, 1, scale);
     }
   }
 
