@@ -7,8 +7,10 @@ import { UiInfobarTopComponent } from './ui/ui-infobar-top/ui-infobar-top.compon
 import { UiSidebarLeftComponent } from './ui/ui-sidebar-left/ui-sidebar-left.component';
 import { UiSidebarRightComponent } from './ui/ui-sidebar-right/ui-sidebar-right.component';
 import { UiComponent } from './ui/ui.component';
+import { SliderComponent } from './ui/slider/slider.component';
 import { SimpleSidenavModule } from 'simple-sidenav';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {MatSliderModule} from '@angular/material';
 
 @NgModule({
   declarations: [
@@ -18,12 +20,14 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     UiInfobarBottomComponent,
     UiInfobarTopComponent,
     UiSidebarLeftComponent,
-    UiSidebarRightComponent
+    UiSidebarRightComponent,
+    SliderComponent
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
+    MatSliderModule,
     SimpleSidenavModule,
-    BrowserAnimationsModule
   ],
   providers: [
   ],

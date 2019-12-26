@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 export interface SidebarAction {
-  rotate: boolean;
-  viewPosition: string;
-  x_hand_rotation: number;
-  y_hand_rotation: number;
-  z_hand_rotation: number;
-  did_zoom: boolean;
-  zoom: number;
+  rotate?: boolean;
+  viewPosition?: string;
+  x_hand_rotation?: number;
+  y_hand_rotation?: number;
+  z_hand_rotation?: number;
+  did_zoom?: boolean;
+  zoom?: number;
+  slideValue?: number;
 }
 
 @Injectable({

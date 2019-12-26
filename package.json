@@ -15,10 +15,12 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "^8.2.14",
+    "@angular/cdk": "~8.2.3",
     "@angular/common": "~8.2.11",
     "@angular/compiler": "~8.2.11",
     "@angular/core": "~8.2.11",
     "@angular/forms": "~8.2.11",
+    "@angular/material": "^8.2.3",
     "@angular/platform-browser": "~8.2.11",
     "@angular/platform-browser-dynamic": "~8.2.11",
     "@angular/router": "~8.2.11",
@@ -29,6 +31,7 @@
     "rxjs": "~6.5.3",
     "simple-sidenav": "^1.1.5",
     "three": "^0.109.0",
+    "three-obj-mtl-loader": "github:rosulg/three-obj-mtl-loader#b1d0d6183f891984aa30dfe8cbf29217ac4ce133",
     "three-orbit-controls": "^82.1.0",
     "zone.js": "~0.9.1"
   },

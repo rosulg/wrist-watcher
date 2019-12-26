@@ -11,12 +11,13 @@ export class Hand {
     async load(): Promise<THREE.Object3D> {
         return new Promise(async res => {
             // Load the model
-            var loader = new GLTFLoader();
+            const loader = new GLTFLoader();
             loader.load(
-                'assets/models/hand.gltf',
+                'assets/models/temp-hand.gltf',
                 ( gltf ) => {
-                    // called when the resource is loaded
-                    return res(gltf.scene);
+                    const hand = gltf.scene.getObjectByName('hand001');
+
+                    return res(hand);
                 },
                 ( xhr ) => {
                     // called while loading is progressing

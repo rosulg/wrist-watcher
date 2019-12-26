@@ -6,8 +6,9 @@ import {toRad} from '../helpers/helpers';
 import {Subscription} from 'rxjs';
 import { OrbitControls } from '@avatsaev/three-orbitcontrols-ts';
 import {SidebarAction, SidebarNotificationService} from '../services/sidebar-notification.service';
+import {TwoToneWatchLink} from '../models/two-tone-watch-link';
 import { SliderUpdaterService } from '../services/slider-updater.service';
-import { PerspectiveCamera } from 'three';
+import { PerspectiveCamera } from 'three'
 
 @Injectable({
   providedIn: 'root'
@@ -25,12 +26,30 @@ export class EngineService implements OnDestroy {
   private frameId: number = null;
   private zoom: number;
 
+  private watch;
+  private hand;
 
-  public constructor(private ngZone: NgZone, private sidebarNotificationService: SidebarNotificationService, private sliderUpdaterService: SliderUpdaterService) {
+  // bracelet related
+  private braceletSpline: THREE.CatmullRomCurve3;
+  private braceletSplineLine: THREE.Line = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: 'purple'}));
+  private braceletLinks: THREE.Group[] = [];
+
+  private braceletLink = new THREE.Group();
+  private braceletLinkLength = 0.03;
+
+  private rayCaster: THREE.Raycaster = new THREE.Raycaster();
+  private intersectionsPoints = [];
+  private isIntersectionPointsFound = false;
+
+
+  public constructor(private ngZone: NgZone, private sidebarNotificationService: SidebarNotificationService) {
     this.sidebarActionSubscription = sidebarNotificationService.observable.subscribe(res => {
       this.sidebarAction = res;
       this.changeCameraPosition(this.sidebarAction);
       this.rotateHandSlider(this.sidebarAction)
+      if (this.sidebarAction && this.sidebarAction.slideValue) {
+        this.scaleHand(this.sidebarAction.slideValue);
+      }
     }, err => console.log(err));
   }
 
@@ -88,7 +107,6 @@ export class EngineService implements OnDestroy {
     this.configControls();
 
 
-
     // soft white light
     this.light = new THREE.AmbientLight( 0x404040 );
     this.light.position.z = 10;
@@ -99,26 +117,114 @@ export class EngineService implements OnDestroy {
     this.scene.add( pointLight );
 
 
-    const hand = await new Hand(0xfffbf5).load();
-    const watch = await new TwoToneWatch(0x00ff00).load();
-    // Center the hand in the world center
-    hand.position.set(0.25, -2.15, -0.5);
-    hand.scale.set(2.5, 2.5, 2.5);
+    this.hand = await new Hand(0xfffbf5).load();
+    this.watch = await new TwoToneWatch().load();
+    this.braceletLink.add(await new TwoToneWatchLink().load());
+    this.braceletLink.visible = true;
 
-    // Rotate the watch to match the hand wrist location
-    watch.rotation.set(
-        toRad(270),
-        toRad(15),
-        toRad(-30),
-    );
-    // Position the watch on-top of the wrist.
-    watch.position.set(-0.1, -0.175, -0.05);
-    watch.scale.set(0.4, 0.4, 0.4);
+    // Center the hand in the world center
+    // TODO: Remove this positioning later. This is for the bracelet to scale better
+    this.hand.position.x += 0.1;
+    this.hand.rotation.set(toRad(0), toRad(215), toRad(160));
 
     this.group = new THREE.Group();
     this.group.position.set(0, 0, 0);
-    this.group.add(hand, watch);
+
+    // Hide the watch until the intersection points from ray caster and hand have been found
+    this.watch.visible = false;
+
+    // Group hand and watch and add to the scene so they are displayed
+    this.group.add(this.hand, this.watch);
     this.scene.add(this.group);
+
+    // Create bracelet objects so they can be used on render. This improves the performance
+    this.createPoolOfBraceletLinks();
+    // Add them all to the scene
+    this.braceletLinks.forEach(mesh => this.group.add(mesh));
+
+  }
+
+
+  private findIntersections(): void {
+    const firstIntersections = [];
+
+    for (let angle = 0; angle < 2 * Math.PI; angle += Math.PI / 4) {
+
+      const rayCasterOrigin = new THREE.Vector3(0, 1, 0).applyAxisAngle(new THREE.Vector3(1, 0, 0), angle).normalize().multiplyScalar(10);
+      const rayDirection = new THREE.Vector3().sub(rayCasterOrigin).normalize();
+
+      this.rayCaster.set(rayCasterOrigin, rayDirection);
+      const intersections = this.rayCaster.intersectObject(this.hand, true);
+      if (intersections && intersections.length) {
+
+        firstIntersections.push(intersections[0].point);
+      }
+    }
+    this.intersectionsPoints = firstIntersections;
+
+    if (firstIntersections.length >= 8) {
+      this.isIntersectionPointsFound = true;
+    }
+  }
+
+  private positionBraceletLinks() {
+    for (let i = 0; i < this.braceletLinks.length; i++) {
+      this.braceletLinks[i].visible = false;
+    }
+
+    const meshLength = this.braceletLinkLength;
+    let count = this.braceletSpline.getLength() / meshLength;
+    count = Math.floor(count);
+
+    const splineStep = 1 / count;
+
+    for (let i = 0; i <= count; i++) {
+      const idx = i % count;
+
+      if (this.isIntersectionPointsFound) {
+        this.braceletLinks[idx].visible = true;
+      }
+
+      this.braceletSpline.getPointAt(idx * splineStep, this.braceletLinks[idx].position);
+      const tan = this.braceletSpline.getTangentAt(idx * splineStep);
+      const lookAt = new THREE.Vector3().copy(tan).add(this.braceletLinks[idx].position);
+      this.braceletLinks[idx].up.copy(this.braceletLinks[idx].position).multiplyScalar(1).normalize();
+      this.braceletLinks[idx].lookAt(lookAt);
+    }
+  }
+
+  private createHandSurroundingSpline(): void {
+    const controlPoints = this.intersectionsPoints.map((point, index) => {
+      // Give the bracelet a little room to breathe
+      if (index === 1 || index === 7) {
+        point.y = point.z < 0 ? this.watch.position.y - 0.01 : this.watch.position.y - 0.015;
+      } else if (index !== 0 && point.y < 0) {
+        point.z += point.z < 0 ? -0.015 : 0.015;
+        point.y += point.y < 0 ? -0.005 : 0;
+      } else if (index !== 0) {
+        point.z += point.z < 0 ? -0.02 : 0.02;
+      }
+
+      return point;
+    });
+
+    this.braceletSpline = new THREE.CatmullRomCurve3(controlPoints, true);
+    const length = this.braceletSpline.getLength();
+
+    const points = this.braceletSpline.getPoints(length / this.braceletLinkLength);
+    this.braceletSplineLine.geometry.setFromPoints(points);
+  }
+
+  private createPoolOfBraceletLinks(): void {
+    for (let i = 0; i < 500; i++) {
+
+      const clone = this.braceletLink.clone();
+      clone.position.set(0, 0, 0);
+      this.scene.add(clone);
+
+      this.braceletLinks.push(clone);
+
+    }
   }
 
   animate(): void {
@@ -149,6 +255,20 @@ export class EngineService implements OnDestroy {
     if (this.group && this.sidebarAction && this.sidebarAction.rotate) {
       this.group.rotation.x += 0.01;
       this.group.rotation.y += 0.01;
+    }
+
+    if (!this.sidebarAction || (this.sidebarAction && !this.sidebarAction.rotate)) {
+      this.findIntersections();
+
+      if (this.isIntersectionPointsFound) {
+        this.createHandSurroundingSpline();
+        this.positionBraceletLinks();
+        const point = this.intersectionsPoints[0];
+        if (point) {
+          this.watch.position.set(point.x, point.y, point.z);
+          this.watch.visible = true;
+        }
+      }
     }
 
     this.renderer.render(this.scene, this.camera);
@@ -185,7 +305,12 @@ export class EngineService implements OnDestroy {
       }      
     }
   }
-  
+
+  private scaleHand(scale: number): void {
+    if (this.hand) {
+      this.hand.scale.set(1, 1, scale);
+    }
+  }
 
   private rotateHandSlider(action: SidebarAction) {
     if (this.group && action) {
