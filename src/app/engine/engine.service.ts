@@ -32,7 +32,7 @@ export class EngineService implements OnDestroy {
   private braceletLinks: THREE.Group[] = [];
 
   private braceletLink = new THREE.Group();
-  private braceletLinkLength = 0.09;
+  private braceletLinkLength = 0.03;
 
   private rayCaster: THREE.Raycaster = new THREE.Raycaster();
   private intersectionsPoints = [];
@@ -104,14 +104,10 @@ export class EngineService implements OnDestroy {
     this.hand = await new Hand(0xfffbf5).load();
     this.watch = await new TwoToneWatch().load();
     this.braceletLink.add(await new TwoToneWatchLink().load());
-    this.braceletLink.scale.set(0.4, 0.4, 0.4);
-    this.braceletLink.visible = false;
+    this.braceletLink.visible = true;
 
     // Center the hand in the world center
-    this.hand.position.set(0.75, -1.8, -1);
-    this.hand.scale.set(2.5, 2.5, 2.5);
-    this.hand.rotation.set(toRad(10), toRad(25), toRad(15));
-    this.watch.scale.set(0.4, 0.4, 0.4);
+    this.hand.rotation.set(toRad(0), toRad(215), toRad(160));
 
     this.group = new THREE.Group();
     this.group.position.set(0, 0, 0);
@@ -128,26 +124,27 @@ export class EngineService implements OnDestroy {
     // Add them all to the scene
     this.braceletLinks.forEach(mesh => this.group.add(mesh));
 
-    this.findIntersections();
   }
+
 
   private findIntersections(): void {
     const firstIntersections = [];
 
     for (let angle = 0; angle < 2 * Math.PI; angle += Math.PI / 4) {
-      const rayCasterOrigin = new THREE.Vector3(0, 5, 0).applyAxisAngle(new THREE.Vector3(1, 0, 0), angle);
+
+      const rayCasterOrigin = new THREE.Vector3(0, 1, 0).applyAxisAngle(new THREE.Vector3(1, 0, 0), angle).normalize().multiplyScalar(10);
       const rayDirection = new THREE.Vector3().sub(rayCasterOrigin).normalize();
+
       this.rayCaster.set(rayCasterOrigin, rayDirection);
       const intersections = this.rayCaster.intersectObject(this.hand, true);
-
       if (intersections && intersections.length) {
 
         firstIntersections.push(intersections[0].point);
       }
     }
-
     this.intersectionsPoints = firstIntersections;
-    if (firstIntersections.length === 8) {
+
+    if (firstIntersections.length >= 8) {
       this.isIntersectionPointsFound = true;
     }
   }
@@ -165,8 +162,8 @@ export class EngineService implements OnDestroy {
 
     for (let i = 0; i <= count; i++) {
       const idx = i % count;
-      // Don't show first two links and two last links as it is not visually appealing
-      if (idx < count - 2 && idx > 1 && this.isIntersectionPointsFound) {
+
+      if (this.isIntersectionPointsFound) {
         this.braceletLinks[idx].visible = true;
       }
 
@@ -181,15 +178,13 @@ export class EngineService implements OnDestroy {
   private createHandSurroundingSpline(): void {
     const controlPoints = this.intersectionsPoints.map((point, index) => {
       // Give the bracelet a little room to breathe
-      if (index === 2) {
-        point.z = this.watch.position.z + 0.25;
-        point.y = this.watch.position.y;
-      } else if (index === 6) {
-        point.z = this.watch.position.z - 0.25;
-        point.y = this.watch.position.y;
+      if (index === 1 || index === 7) {
+        point.y = point.z < 0 ? this.watch.position.y - 0.01 : this.watch.position.y - 0.015;
+      } else if (index !== 0 && point.y < 0) {
+        point.z += point.z < 0 ? -0.015 : 0.015;
+        point.y += point.y < 0 ? -0.005 : 0;
       } else if (index !== 0) {
-        point.z += point.z < 0 ? -0.025 : 0.025;
-        point.y += point.y < 0 ? -0.0425 : 0;
+        point.z += point.z < 0 ? -0.02 : 0.02;
       }
 
       return point;
@@ -203,14 +198,12 @@ export class EngineService implements OnDestroy {
   }
 
   private createPoolOfBraceletLinks(): void {
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 500; i++) {
 
       const clone = this.braceletLink.clone();
       clone.position.set(0, 0, 0);
       this.scene.add(clone);
 
-      // For debugging
-      // clone.add(new THREE.AxesHelper( 1 ));
       this.braceletLinks.push(clone);
 
     }
@@ -253,8 +246,10 @@ export class EngineService implements OnDestroy {
         this.createHandSurroundingSpline();
         this.positionBraceletLinks();
         const point = this.intersectionsPoints[0];
-        this.watch.position.set(point.x, point.y, point.z);
-        this.watch.visible = true;
+        if (point) {
+          this.watch.position.set(point.x, point.y, point.z);
+          this.watch.visible = true;
+        }
       }
     }
 
