@@ -1,9 +1,14 @@
-<sm-simple-sidenav class="sidenav-custom"
-  [menu]="menu"
-  [animation]="animation"
-  [withArrow]="true"
-  (onSidenav)="onClick($event)">
-</sm-simple-sidenav>
+<mat-sidenav-container class="example-container">
+    <mat-sidenav #drawer mode="side" opened role="navigation">
+        <mat-nav-list>
+        <a >First Component</a>
+        <a >Second Component</a>
+        </mat-nav-list>
+    </mat-sidenav>
+    <mat-sidenav-content>
+        <p>hello</p>
+    </mat-sidenav-content>
+</mat-sidenav-container>
 
 <div class="slider" id="handSliders">
     <div></div>

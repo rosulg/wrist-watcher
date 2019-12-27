@@ -42,7 +42,7 @@ export class EngineService implements OnDestroy {
   private isIntersectionPointsFound = false;
 
 
-  public constructor(private ngZone: NgZone, private sidebarNotificationService: SidebarNotificationService) {
+  public constructor(private ngZone: NgZone, private sidebarNotificationService: SidebarNotificationService, private sliderUpdaterService: SliderUpdaterService) {
     this.sidebarActionSubscription = sidebarNotificationService.observable.subscribe(res => {
       this.sidebarAction = res;
       this.changeCameraPosition(this.sidebarAction);

@@ -8,9 +8,9 @@ import { UiSidebarLeftComponent } from './ui/ui-sidebar-left/ui-sidebar-left.com
 import { UiSidebarRightComponent } from './ui/ui-sidebar-right/ui-sidebar-right.component';
 import { UiComponent } from './ui/ui.component';
 import { SliderComponent } from './ui/slider/slider.component';
-import { SimpleSidenavModule } from 'simple-sidenav';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {MatSliderModule} from '@angular/material';
+import {MatSliderModule, MatSidenavModule} from '@angular/material';
+import { MatListModule } from 'node_modules copy/@angular/material/list';
 
 @NgModule({
   declarations: [
@@ -27,7 +27,8 @@ import {MatSliderModule} from '@angular/material';
     BrowserModule,
     BrowserAnimationsModule,
     MatSliderModule,
-    SimpleSidenavModule,
+    MatSidenavModule,
+    MatListModule
   ],
   providers: [
   ],
