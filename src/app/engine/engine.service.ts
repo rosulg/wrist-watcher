@@ -313,7 +313,7 @@ export class EngineService implements OnDestroy {
   }
 
   private scaleHand(scale: number): void {
-    if (this.hand) {
+    if (this.hand && this.sidebarAction) {
       this.hand.scale.set(1, 1, scale);
     }
   }

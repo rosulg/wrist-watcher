@@ -106,4 +106,8 @@ onClick(item: {id: number|string, name: string, icon: string, index: number}) {
     this.rotate = !this.rotate;
     this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
   }
+
+  passScale(value){
+      this.sidebarNotificationService.notify({slideValue: value});
+  }
 }
