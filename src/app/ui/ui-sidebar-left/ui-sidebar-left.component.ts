@@ -20,6 +20,7 @@ export class UiSidebarLeftComponent {
   private zoom = 5;
   private sliders: Sliders;
   private sliderSubscription: Subscription;
+  private mode ="side";
   
 
 
@@ -57,7 +58,20 @@ onClick(item: {id: number|string, name: string, icon: string, index: number}) {
       this.updateSliders(this.sliders);
     }, err => console.log(err));
   } 
+  viewTop(){
+    this.viewPosition = "top";
+    this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
+  }
 
+  viewLeft(){
+    this.viewPosition = "left";
+    this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
+  }
+
+  viewRight(){
+    this.viewPosition = "right";
+    this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
+  }
   updateSliders(sliders: Sliders){
     if(sliders){
       (<HTMLInputElement>document.getElementById("myRangeZoom")).value = sliders.zoom.toString();
