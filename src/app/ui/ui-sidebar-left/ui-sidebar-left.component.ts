@@ -23,36 +23,6 @@ export class UiSidebarLeftComponent {
   private mode ="side";
   private zoomValue ="5";
   
-
-
-onClick(item: {id: number|string, name: string, icon: string, index: number}) {
-  var x = document.getElementById("handSliders");
-  var y = document.getElementById("zoomslider");
-  x.style.display = "none";
-  y.style.display = "none";
-
-  if (item !=null) {
-    if (item.id === '2') {
-      x.style.display = "block";
-    } else if (item.id === '3') {
-      y.style.display = "block";
-    } else if (item.id === '5') {
-      this.viewPosition = "top";
-      this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
-    } else if (item.id === '6') {
-      this.viewPosition = "left";
-      this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
-    } else if (item.id === '7') {
-      this.viewPosition = "right";
-      this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
-    } else if (item.id === '8') {
-      this.rotate = !this.rotate;
-      this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
-    }
-    this.viewPosition = "none";
-  }
-  }
-
   constructor(private sidebarNotificationService: SidebarNotificationService, private sliderUpdaterService: SliderUpdaterService) { 
     this.sliderSubscription = sliderUpdaterService.observable.subscribe(res => {
       this.sliders = res;
@@ -76,8 +46,6 @@ onClick(item: {id: number|string, name: string, icon: string, index: number}) {
   updateSliders(sliders: Sliders){
     if(sliders){
       this.zoomValue = sliders.zoom.toString();
-      console.log("hello")
-      
     }
   }
   passHandRotationX(value){
