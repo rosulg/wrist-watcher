@@ -25,6 +25,8 @@ export class EngineService implements OnDestroy {
   private sidebarActionSubscription: Subscription;
   private frameId: number = null;
   private zoom: number;
+  private currDistance: number;
+  private factor: number;
 
   private watch;
   private hand;
@@ -76,7 +78,6 @@ export class EngineService implements OnDestroy {
 
   updateSliders(){
     this.zoom = this.controls.target.distanceTo( this.controls.object.position )
-    this.camera.zoom = this.zoom;
     this.sliderUpdaterService.notify({zoom: this.zoom});
   }
   async createScene(canvas: ElementRef<HTMLCanvasElement>): Promise<void> {
@@ -287,8 +288,13 @@ export class EngineService implements OnDestroy {
   private changeCameraPosition(action: SidebarAction) {
     if (this.camera && action) {
       if (action.did_zoom) {
-        this.camera.zoom = action.zoom;
-        this.camera.updateProjectionMatrix();
+        this.currDistance = this.camera.position.length(),
+        this.factor = action.zoom/this.currDistance;
+        this.camera.position.x *= this.factor;
+        this.camera.position.y *= this.factor;
+        this.camera.position.z *= this.factor;
+        //this.camera.zoom = action.zoom;
+        //this.camera.updateProjectionMatrix();
         //console.log(this.camera.zoom)
       } else {
         this.group.position.set(0, 0, 0);

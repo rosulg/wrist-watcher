@@ -21,6 +21,7 @@ export class UiSidebarLeftComponent {
   private sliders: Sliders;
   private sliderSubscription: Subscription;
   private mode ="side";
+  private zoomValue ="5";
   
 
 
@@ -74,8 +75,9 @@ onClick(item: {id: number|string, name: string, icon: string, index: number}) {
   }
   updateSliders(sliders: Sliders){
     if(sliders){
-      (<HTMLInputElement>document.getElementById("myRangeZoom")).value = sliders.zoom.toString();
-      console.log(sliders.zoom)
+      this.zoomValue = sliders.zoom.toString();
+      console.log("hello")
+      
     }
   }
   passHandRotationX(value){
@@ -98,5 +100,10 @@ onClick(item: {id: number|string, name: string, icon: string, index: number}) {
     this.did_zoom = true;
     this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
     this.did_zoom = false;
+  }
+
+  rotateHand(){
+    this.rotate = !this.rotate;
+    this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
   }
 }
