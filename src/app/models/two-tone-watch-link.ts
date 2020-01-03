@@ -19,16 +19,6 @@ export class TwoToneWatchLink {
             objLoader.load(
                 './assets/models/two-tone-watch-link.obj',
                 (obj) => {
-                    // const link = obj.getObjectByName('two-tone-watch.005');
-                    // link.name = 'Link';
-                    // const group = new THREE.Group();
-                    // // "Gray_metal"
-                    // // Gold_metal
-                    // obj.remove(link);
-                    // link.position.set(0, 0, 0);
-                    // group.add(link);
-                    // // group.add(link.getObjectByName('Gray_metal'), link.getObjectByName('Gold_metal'));
-
                     const link = obj.getObjectByName('two-tone-watch.005');
                     return res(link);
                 }

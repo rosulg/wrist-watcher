@@ -1,14 +1,13 @@
-import {Injectable, ElementRef, OnDestroy, NgZone } from '@angular/core';
+import {ElementRef, Injectable, NgZone, OnDestroy} from '@angular/core';
 import * as THREE from 'three';
-import { Hand } from '../models/hand';
-import { TwoToneWatch } from '../models/two-tone-watch';
+import {Hand} from '../models/hand';
+import {TwoToneWatch} from '../models/two-tone-watch';
 import {toRad} from '../helpers/helpers';
 import {Subscription} from 'rxjs';
-import { OrbitControls } from '@avatsaev/three-orbitcontrols-ts';
+import {OrbitControls} from '@avatsaev/three-orbitcontrols-ts';
 import {SidebarAction, SidebarNotificationService} from '../services/sidebar-notification.service';
 import {TwoToneWatchLink} from '../models/two-tone-watch-link';
-import { SliderUpdaterService } from '../services/slider-updater.service';
-import { PerspectiveCamera } from 'three'
+import {SliderUpdaterService} from '../services/slider-updater.service';
 
 @Injectable({
   providedIn: 'root'
@@ -33,7 +32,7 @@ export class EngineService implements OnDestroy {
 
   // bracelet related
   private braceletSpline: THREE.CatmullRomCurve3;
-  private braceletSplineLine: THREE.Line = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: 'purple'}));
+  private braceletSplineLine: THREE.Line = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({color: 'purple'}));
   private braceletLinks: THREE.Group[] = [];
 
   private braceletLink = new THREE.Group();
@@ -42,26 +41,30 @@ export class EngineService implements OnDestroy {
   private rayCaster: THREE.Raycaster = new THREE.Raycaster();
   private intersectionsPoints = [];
   private isIntersectionPointsFound = false;
+  private computeBracelet = true;
 
 
-  public constructor(private ngZone: NgZone, private sidebarNotificationService: SidebarNotificationService, private sliderUpdaterService: SliderUpdaterService) {
+  public constructor(
+    private ngZone: NgZone,
+    private sidebarNotificationService: SidebarNotificationService,
+    private sliderUpdaterService: SliderUpdaterService) {
     this.sidebarActionSubscription = sidebarNotificationService.observable.subscribe(res => {
       this.sidebarAction = res;
       this.changeCameraPosition(this.sidebarAction);
-      this.rotateHandSlider(this.sidebarAction)
-      if (this.sidebarAction && this.sidebarAction.slideValue) {
-        this.scaleHand(this.sidebarAction.slideValue);
+      this.rotateHandSlider(this.sidebarAction);
+      if (this.sidebarAction && this.sidebarAction.handScaleSize) {
+        this.scaleHand(this.sidebarAction.handScaleSize);
       }
     }, err => console.log(err));
   }
 
-    public ngOnDestroy() {
-      if (this.frameId != null) {
-        cancelAnimationFrame(this.frameId);
-      }
+  public ngOnDestroy() {
+    if (this.frameId != null) {
+      cancelAnimationFrame(this.frameId);
+    }
 
-      // Unsubscribe
-      this.sidebarActionSubscription.unsubscribe();
+    // Unsubscribe
+    this.sidebarActionSubscription.unsubscribe();
   }
 
   configControls() {
@@ -72,7 +75,6 @@ export class EngineService implements OnDestroy {
     this.controls.minDistance = 1;
     this.controls.maxDistance = 10;
     this.controls.update();
-    this.controls.addEventListener('change', this.updateSliders.bind(this));
     this.controls.update();
   }
 
@@ -80,6 +82,7 @@ export class EngineService implements OnDestroy {
     this.zoom = this.controls.target.distanceTo( this.controls.object.position )
     this.sliderUpdaterService.notify({zoom: this.zoom});
   }
+
   async createScene(canvas: ElementRef<HTMLCanvasElement>): Promise<void> {
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = canvas.nativeElement;
@@ -109,13 +112,13 @@ export class EngineService implements OnDestroy {
 
 
     // soft white light
-    this.light = new THREE.AmbientLight( 0x404040 );
+    this.light = new THREE.AmbientLight(0x404040);
     this.light.position.z = 10;
     this.scene.add(this.light);
 
-    const pointLight = new THREE.PointLight( 0xfdfbd3, 1, 100 );
-    pointLight.position.set( 0, 10, 0 );
-    this.scene.add( pointLight );
+    const pointLight = new THREE.PointLight(0xfdfbd3, 1, 100);
+    pointLight.position.set(0, 10, 0);
+    this.scene.add(pointLight);
 
 
     this.hand = await new Hand(0xfffbf5).load();
@@ -145,6 +148,62 @@ export class EngineService implements OnDestroy {
 
   }
 
+  animate(): void {
+    // We have to run this outside angular zones,
+    // because it could trigger heavy changeDetection cycles.
+    this.ngZone.runOutsideAngular(() => {
+      if (document.readyState !== 'loading') {
+        this.render();
+      } else {
+        window.addEventListener('DOMContentLoaded', () => {
+          this.render();
+        });
+      }
+
+      window.addEventListener('resize', () => {
+        this.resize();
+      });
+    });
+    this.controls.update();
+  }
+
+  render() {
+    this.frameId = requestAnimationFrame(() => {
+      this.render();
+    });
+
+    // NB! Rotate all objects inside this if statement. Otherwise toggling rotation will not work!
+    if (this.group && this.sidebarAction && this.sidebarAction.rotate) {
+      this.group.rotation.x += 0.01;
+      this.group.rotation.y += 0.01;
+    }
+
+    if (!this.sidebarAction || (this.sidebarAction && !this.sidebarAction.rotate)) {
+      this.findIntersections();
+
+      if (this.computeBracelet && this.isIntersectionPointsFound && this.intersectionsPoints.length) {
+        this.createHandSurroundingSpline();
+        this.positionBraceletLinks();
+        const point = this.intersectionsPoints[0];
+        if (point) {
+          this.watch.position.set(point.x, point.y + 0.01, point.z);
+          this.watch.visible = true;
+        }
+      }
+    }
+
+    this.renderer.render(this.scene, this.camera);
+  }
+
+  resize() {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    this.camera.aspect = width / height;
+    this.camera.updateProjectionMatrix();
+
+    this.renderer.setSize(width, height);
+  }
 
   private findIntersections(): void {
     const firstIntersections = [];
@@ -201,7 +260,7 @@ export class EngineService implements OnDestroy {
         point.y = point.z < 0 ? this.watch.position.y - 0.01 : this.watch.position.y - 0.015;
       } else if (index !== 0 && point.y < 0) {
         point.z += point.z < 0 ? -0.015 : 0.015;
-        point.y += point.y < 0 ? -0.005 : 0;
+        point.y += point.y < 0 ? -0.01 : 0;
       } else if (index !== 0) {
         point.z += point.z < 0 ? -0.02 : 0.02;
       }
@@ -228,63 +287,6 @@ export class EngineService implements OnDestroy {
     }
   }
 
-  animate(): void {
-    // We have to run this outside angular zones,
-    // because it could trigger heavy changeDetection cycles.
-    this.ngZone.runOutsideAngular(() => {
-      if (document.readyState !== 'loading') {
-        this.render();
-      } else {
-        window.addEventListener('DOMContentLoaded', () => {
-          this.render();
-        });
-      }
-
-      window.addEventListener('resize', () => {
-        this.resize();
-      });
-    });
-    this.controls.update();
-  }
-
-  render() {
-    this.frameId = requestAnimationFrame(() => {
-      this.render();
-    });
-
-    // NB! Rotate all objects inside this if statement. Otherwise toggling rotation will not work!
-    if (this.group && this.sidebarAction && this.sidebarAction.rotate) {
-      this.group.rotation.x += 0.01;
-      this.group.rotation.y += 0.01;
-    }
-
-    if (!this.sidebarAction || (this.sidebarAction && !this.sidebarAction.rotate)) {
-      this.findIntersections();
-
-      if (this.isIntersectionPointsFound) {
-        this.createHandSurroundingSpline();
-        this.positionBraceletLinks();
-        const point = this.intersectionsPoints[0];
-        if (point) {
-          this.watch.position.set(point.x, point.y, point.z);
-          this.watch.visible = true;
-        }
-      }
-    }
-
-    this.renderer.render(this.scene, this.camera);
-  }
-
-  resize() {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-
-    this.camera.aspect = width / height;
-    this.camera.updateProjectionMatrix();
-
-    this.renderer.setSize( width, height );
-  }
-
   private changeCameraPosition(action: SidebarAction) {
     if (this.camera && action) {
       if (action.did_zoom) {
@@ -298,31 +300,35 @@ export class EngineService implements OnDestroy {
         //console.log(this.camera.zoom)
       } else {
         this.group.position.set(0, 0, 0);
-        if (action.viewPosition === "top") {
-          this.camera.position.set(0, 2, 0)
-          this.camera.lookAt(new THREE.Vector3())
-        } else if (action.viewPosition === "left") {
-          this.camera.position.set(1, 1, -3)
-          this.camera.lookAt(new THREE.Vector3())
-        } else if (action.viewPosition === "right") {
-          this.camera.position.set(-1, 1, 1)
-          this.camera.lookAt(new THREE.Vector3())
+        if (action.viewPosition === 'top') {
+          this.camera.position.set(0, 2, 0);
+          this.camera.lookAt(new THREE.Vector3());
+        } else if (action.viewPosition === 'left') {
+          this.camera.position.set(1, 1, -3);
+          this.camera.lookAt(new THREE.Vector3());
+        } else if (action.viewPosition === 'right') {
+          this.camera.position.set(-1, 1, 1);
+          this.camera.lookAt(new THREE.Vector3());
         }
-      }      
+      }
     }
   }
 
   private scaleHand(scale: number): void {
     if (this.hand && this.sidebarAction) {
       this.hand.scale.set(1, 1, scale);
+      // Set rotation as default before computing the new bracelet.
+      this.group.rotation.set(0, 0, 0);
+      this.computeBracelet = true;
     }
   }
 
   private rotateHandSlider(action: SidebarAction) {
-    if (this.group && action) {
-      this.group.rotation.z = action.z_hand_rotation * Math.PI/180
-      this.group.rotation.x = action.x_hand_rotation * Math.PI/180
-      this.group.rotation.y = action.y_hand_rotation * Math.PI/180
+    if (this.group && action && !isNaN(action.z_hand_rotation) && !isNaN(action.y_hand_rotation) && !isNaN(action.x_hand_rotation)) {
+      this.computeBracelet = false;
+      this.group.rotation.z = action.z_hand_rotation * Math.PI / 180;
+      this.group.rotation.x = action.x_hand_rotation * Math.PI / 180;
+      this.group.rotation.y = action.y_hand_rotation * Math.PI / 180;
     }
   }
 

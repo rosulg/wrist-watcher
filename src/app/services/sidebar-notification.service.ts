@@ -9,7 +9,7 @@ export interface SidebarAction {
   z_hand_rotation?: number;
   did_zoom?: boolean;
   zoom?: number;
-  slideValue?: number;
+  handScaleSize?: number;
 }
 
 @Injectable({

@@ -1,8 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { EngineService } from 'src/app/engine/engine.service';
+import {Component} from '@angular/core';
 import {SidebarNotificationService} from '../../services/sidebar-notification.service';
-import { SliderUpdaterService, Sliders } from 'src/app/services/slider-updater.service';
-import { Subscription } from 'rxjs';
+import {Sliders, SliderUpdaterService} from 'src/app/services/slider-updater.service';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-ui-sidebar-left',
@@ -12,7 +11,7 @@ import { Subscription } from 'rxjs';
 export class UiSidebarLeftComponent {
 
   private rotate = false;
-  private viewPosition = "none";
+  private viewPosition = 'none';
   private x_hand_rotation = 0;
   private y_hand_rotation = 0;
   private z_hand_rotation = 0;
@@ -48,25 +47,58 @@ export class UiSidebarLeftComponent {
       this.zoomValue = sliders.zoom.toString();
     }
   }
-  passHandRotationX(value){
+
+  passHandRotationX(value) {
     this.x_hand_rotation = value;
-    this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
+    this.sidebarNotificationService.notify({
+      viewPosition: this.viewPosition,
+      rotate: this.rotate,
+      z_hand_rotation: this.z_hand_rotation,
+      x_hand_rotation: this.x_hand_rotation,
+      y_hand_rotation: this.y_hand_rotation,
+      did_zoom: this.did_zoom,
+      zoom: this.zoom
+    });
   }
 
-  passHandRotationY(value){
+  passHandRotationY(value) {
     this.y_hand_rotation = value;
-    this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
+    this.sidebarNotificationService.notify({
+      viewPosition: this.viewPosition,
+      rotate: this.rotate,
+      z_hand_rotation: this.z_hand_rotation,
+      x_hand_rotation: this.x_hand_rotation,
+      y_hand_rotation: this.y_hand_rotation,
+      did_zoom: this.did_zoom,
+      zoom: this.zoom
+    });
   }
 
-  passHandRotationZ(value){
+  passHandRotationZ(value) {
     this.z_hand_rotation = value;
-    this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
+    this.sidebarNotificationService.notify({
+      viewPosition: this.viewPosition,
+      rotate: this.rotate,
+      z_hand_rotation: this.z_hand_rotation,
+      x_hand_rotation: this.x_hand_rotation,
+      y_hand_rotation: this.y_hand_rotation,
+      did_zoom: this.did_zoom,
+      zoom: this.zoom
+    });
   }
 
   cameraZoom(value) {
     this.zoom = value;
     this.did_zoom = true;
-    this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
+    this.sidebarNotificationService.notify({
+      viewPosition: this.viewPosition,
+      rotate: this.rotate,
+      z_hand_rotation: this.z_hand_rotation,
+      x_hand_rotation: this.x_hand_rotation,
+      y_hand_rotation: this.y_hand_rotation,
+      did_zoom: this.did_zoom,
+      zoom: this.zoom
+    });
     this.did_zoom = false;
   }
 
@@ -76,6 +108,6 @@ export class UiSidebarLeftComponent {
   }
 
   passScale(value){
-      this.sidebarNotificationService.notify({slideValue: value});
+      //this.sidebarNotificationService.notify({slideValue: value});
   }
 }
