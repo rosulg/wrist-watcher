@@ -120,9 +120,14 @@ export class EngineService implements OnDestroy {
     this.scene.add(pointLight);
 
 
-    this.hand = await new Hand(0xfffbf5).load();
-    this.watch = await new TwoToneWatch().load();
-    this.braceletLink.add(await new TwoToneWatchLink().load());
+    const results = await Promise.all([
+      new Hand(0xfffbf5).load(),
+      new TwoToneWatch().load(),
+      new TwoToneWatchLink().load()
+    ]);
+    this.hand = results[0];
+    this.watch = results[1];
+    this.braceletLink.add(results[2]);
     this.braceletLink.visible = true;
 
     // Center the hand in the world center
