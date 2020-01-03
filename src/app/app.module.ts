@@ -9,8 +9,7 @@ import {UiInfobarTopComponent} from './ui/ui-infobar-top/ui-infobar-top.componen
 import {UiSidebarLeftComponent} from './ui/ui-sidebar-left/ui-sidebar-left.component';
 import {UiSidebarRightComponent} from './ui/ui-sidebar-right/ui-sidebar-right.component';
 import {UiComponent} from './ui/ui.component';
-import {SliderComponent} from './ui/slider/slider.component';
-import {GestureConfig, MatListModule, MatSidenavModule, MatSliderModule} from '@angular/material';
+import {GestureConfig, MatFormFieldModule, MatInputModule, MatListModule, MatSidenavModule, MatSliderModule} from '@angular/material';
 
 @NgModule({
   declarations: [
@@ -21,14 +20,15 @@ import {GestureConfig, MatListModule, MatSidenavModule, MatSliderModule} from '@
     UiInfobarTopComponent,
     UiSidebarLeftComponent,
     UiSidebarRightComponent,
-    SliderComponent
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    MatFormFieldModule,
     MatSliderModule,
     MatSidenavModule,
     MatListModule,
+    MatInputModule,
   ],
   providers: [
     {
