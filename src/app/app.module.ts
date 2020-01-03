@@ -9,7 +9,7 @@ import { UiSidebarRightComponent } from './ui/ui-sidebar-right/ui-sidebar-right.
 import { UiComponent } from './ui/ui.component';
 import { SliderComponent } from './ui/slider/slider.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {MatSliderModule, MatSidenavModule, MatListModule} from '@angular/material';
+import { MatSliderModule, MatSidenavModule, MatListModule } from '@angular/material';
 
 @NgModule({
   declarations: [
