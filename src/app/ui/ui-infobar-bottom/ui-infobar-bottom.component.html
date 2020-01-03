@@ -1,1 +1,16 @@
-<app-slider (sliderChanged)="onSliderChanged($event)"></app-slider>
+<strong>Hand circumference (cm):</strong>
+<br>
+<input
+        type="number" [min]="minHandCircumference" [max]="maxHandCircumference"
+        [value]="defaultHandCircumference"
+        (change)="onHandCircumferenceChanged($event)"
+>
+<br>
+
+<strong>Watch lug width (mm):</strong>
+<br>
+<input
+        type="number" [min]="minWatchLugWidth" [max]="maxWatchLugWidth"
+        [value]="defaultWatchLugWidth"
+        (change)="onWatchLugWidthChanged($event)"
+>

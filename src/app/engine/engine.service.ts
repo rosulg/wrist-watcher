@@ -27,6 +27,7 @@ export class EngineService implements OnDestroy {
 
   private watch;
   private hand;
+  private handScaleSize = 1;
 
   // bracelet related
   private braceletSpline: THREE.CatmullRomCurve3;
@@ -50,8 +51,9 @@ export class EngineService implements OnDestroy {
       this.sidebarAction = res;
       this.changeCameraPosition(this.sidebarAction);
       this.rotateHandSlider(this.sidebarAction);
-      if (this.sidebarAction && this.sidebarAction.slideValue) {
-        this.scaleHand(this.sidebarAction.slideValue);
+      if (this.sidebarAction && this.sidebarAction.handScaleSize) {
+        this.handScaleSize = this.sidebarAction.handScaleSize;
+        this.scaleHand();
       }
     }, err => console.log(err));
   }
@@ -307,10 +309,12 @@ export class EngineService implements OnDestroy {
     }
   }
 
-  private scaleHand(scale: number): void {
+  private scaleHand(): void {
     if (this.hand) {
       this.computeBracelet = true;
-      this.hand.scale.set(1, 1, scale);
+      this.hand.scale.set(1, 1, this.handScaleSize);
+      console.log(this.handScaleSize, 'wooo')
+      // this.hand.rotation.y = this.handScaleSize;
     }
   }
 
