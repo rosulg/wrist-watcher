@@ -99,8 +99,9 @@ export class EngineService implements OnDestroy {
     this.scene = new THREE.Scene();
 
     // Axeshelpers
-    const axesHelper = new THREE.AxesHelper(1000);
-    this.scene.add(axesHelper);
+    // TODO: Comment out for prod build
+    // const axesHelper = new THREE.AxesHelper(1000);
+    // this.scene.add(axesHelper);
 
     this.camera = new THREE.PerspectiveCamera(
       75, window.innerWidth / window.innerHeight, 0.1, 1000
