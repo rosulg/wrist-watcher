@@ -39,6 +39,7 @@ export class EngineService implements OnDestroy {
   private rayCaster: THREE.Raycaster = new THREE.Raycaster();
   private intersectionsPoints = [];
   private isIntersectionPointsFound = false;
+  private computeBracelet = true;
 
 
   public constructor(
@@ -72,7 +73,6 @@ export class EngineService implements OnDestroy {
     this.controls.minDistance = 1;
     this.controls.maxDistance = 10;
     this.controls.update();
-    this.controls.addEventListener('change', this.updateSliders.bind(this));
     this.controls.update();
   }
 
@@ -180,7 +180,7 @@ export class EngineService implements OnDestroy {
     if (!this.sidebarAction || (this.sidebarAction && !this.sidebarAction.rotate)) {
       this.findIntersections();
 
-      if (this.isIntersectionPointsFound) {
+      if (this.computeBracelet && this.isIntersectionPointsFound && this.intersectionsPoints.length) {
         this.createHandSurroundingSpline();
         this.positionBraceletLinks();
         const point = this.intersectionsPoints[0];
@@ -309,12 +309,14 @@ export class EngineService implements OnDestroy {
 
   private scaleHand(scale: number): void {
     if (this.hand) {
+      this.computeBracelet = true;
       this.hand.scale.set(1, 1, scale);
     }
   }
 
   private rotateHandSlider(action: SidebarAction) {
-    if (this.group && action) {
+    if (this.group && action && !isNaN(action.z_hand_rotation) && !isNaN(action.y_hand_rotation) && !isNaN(action.x_hand_rotation)) {
+      this.computeBracelet = false;
       this.group.rotation.z = action.z_hand_rotation * Math.PI / 180;
       this.group.rotation.x = action.x_hand_rotation * Math.PI / 180;
       this.group.rotation.y = action.y_hand_rotation * Math.PI / 180;
