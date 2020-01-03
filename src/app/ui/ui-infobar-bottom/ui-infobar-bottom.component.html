@@ -1,4 +1,4 @@
-<strong>Hand circumference (cm):</strong>
+<strong>Hand circumference (cm) [{{minHandCircumference}}:{{maxHandCircumference}}]:</strong>
 <br>
 <input
         type="number" [min]="minHandCircumference" [max]="maxHandCircumference"
@@ -7,10 +7,10 @@
 >
 <br>
 
-<strong>Watch lug width (mm):</strong>
+<strong>Watch lug width (mm) [{{minWatchLugWidth}}:{{maxWatchLugWidth}}]:</strong>
 <br>
 <input
         type="number" [min]="minWatchLugWidth" [max]="maxWatchLugWidth"
-        [value]="defaultWatchLugWidth"
+        [value]="defaultWatchLugWidth.toPrecision(2)"
         (change)="onWatchLugWidthChanged($event)"
 >
