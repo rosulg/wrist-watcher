@@ -10,3 +10,8 @@
 
 ## Production
 1. `npm run build` (builds production build)
+
+
+Project in depth description: https://courses.cs.ut.ee/2019/cg/fall/Main/Project-WristWatcher
+
+Demo available at: http://wrist-watcher.com.s3-website.eu-central-1.amazonaws.com/
