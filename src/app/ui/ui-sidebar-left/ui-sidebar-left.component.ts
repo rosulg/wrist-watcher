@@ -25,6 +25,7 @@ export class UiSidebarLeftComponent {
   private elsize=false;
   private styledoc;
   
+  
   constructor(private sidebarNotificationService: SidebarNotificationService, private sliderUpdaterService: SliderUpdaterService) { 
     this.sliderSubscription = sliderUpdaterService.observable.subscribe(res => {
       this.sliders = res;
