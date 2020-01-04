@@ -28,20 +28,24 @@ export class UiSidebarLeftComponent {
   constructor(private sidebarNotificationService: SidebarNotificationService, private sliderUpdaterService: SliderUpdaterService) { 
     this.sliderSubscription = sliderUpdaterService.observable.subscribe(res => {
       this.sliders = res;
+
       this.updateSliders(this.sliders);
     }, err => console.log(err));
   } 
   viewTop(){
+    this.resetRotation()
     this.viewPosition = "top";
     this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
   }
 
   viewLeft(){
+    this.resetRotation()
     this.viewPosition = "left";
     this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
   }
 
   viewRight(){
+    this.resetRotation()
     this.viewPosition = "right";
     this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
   }
@@ -119,5 +123,10 @@ export class UiSidebarLeftComponent {
       this.styledoc.style.height = '100vh';
       this.elsize = !this.elsize
     }
+  }
+  resetRotation(){
+    this.passHandRotationX(0);
+    this.passHandRotationY(0);
+    this.passHandRotationZ(0);
   }
 }

@@ -12,11 +12,11 @@
             <p><strong>Hand coordinates</strong></p>
 
             <p><strong>x</strong></p>
-            <mat-slider class = "titles" min="1" max="359"  id="myRangeHandX" #rangerx (input)="passHandRotationX(rangerx.value)"></mat-slider>
+            <mat-slider class = "titles" min="0" max="359" value = {{x_hand_rotation}}  id="myRangeHandX" #rangerx (input)="passHandRotationX(rangerx.value)"></mat-slider>
             <p><strong>y</strong></p>
-            <mat-slider class = "titles" min="1" max="359" id="myRangeHandY" #rangery (input)="passHandRotationY(rangery.value)"></mat-slider>
+            <mat-slider class = "titles" min="0" max="359" value = {{y_hand_rotation}} id="myRangeHandY" #rangery (input)="passHandRotationY(rangery.value)"></mat-slider>
             <p><strong>z</strong></p>
-            <mat-slider class = "titles" min="1" max="359"  id="myRangeHandZ" #rangerz (input)="passHandRotationZ(rangerz.value)"></mat-slider>
+            <mat-slider class = "titles" min="0" max="359" value = {{z_hand_rotation}}  id="myRangeHandZ" #rangerz (input)="passHandRotationZ(rangerz.value)"></mat-slider>
             <p class = "topSpace"><strong>Zoom</strong></p>
             <mat-slider class = "titles" min="0.4" max="10" value={{zoomValue}} step="0.00000001"  id="myRangeZoom" #rangerzoom (input)="cameraZoom(rangerzoom.value)"></mat-slider>
         </div>

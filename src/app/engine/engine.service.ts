@@ -83,6 +83,7 @@ export class EngineService implements OnDestroy {
     this.zoom = this.controls.target.distanceTo( this.controls.object.position )
     this.sliderUpdaterService.notify({zoom: this.zoom});
   }
+  
 
   async createScene(canvas: ElementRef<HTMLCanvasElement>): Promise<void> {
     // The first step is to get the reference of the canvas element from our HTML document
