@@ -72,9 +72,10 @@ export class EngineService implements OnDestroy {
     this.controls.autoRotate = false;
     this.controls.enableZoom = true;
     this.controls.enablePan = true;
-    this.controls.minDistance = 1;
+    this.controls.minDistance = 0.4;
     this.controls.maxDistance = 10;
     this.controls.update();
+    this.controls.addEventListener('change', this.updateSliders.bind(this));
     this.controls.update();
   }
 

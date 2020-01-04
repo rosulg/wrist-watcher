@@ -10,6 +10,7 @@ import {Subscription} from 'rxjs';
 })
 export class UiSidebarLeftComponent {
 
+  
   private rotate = false;
   private viewPosition = 'none';
   private x_hand_rotation = 0;
@@ -21,6 +22,8 @@ export class UiSidebarLeftComponent {
   private sliderSubscription: Subscription;
   private mode ="side";
   private zoomValue ="5";
+  private elsize=false;
+  private styledoc;
   
   constructor(private sidebarNotificationService: SidebarNotificationService, private sliderUpdaterService: SliderUpdaterService) { 
     this.sliderSubscription = sliderUpdaterService.observable.subscribe(res => {
@@ -107,7 +110,14 @@ export class UiSidebarLeftComponent {
     this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
   }
 
-  passScale(value){
-      //this.sidebarNotificationService.notify({slideValue: value});
+  sizer(){
+    this.styledoc = document.getElementById("main")
+    if (this.elsize){
+      this.styledoc.style.height = '';
+      this.elsize = !this.elsize
+    }else{
+      this.styledoc.style.height = '100vh';
+      this.elsize = !this.elsize
+    }
   }
 }

@@ -1,13 +1,16 @@
 .example-container {
-    width: 400px;
-    height: 500px;
-    margin: 10px;
+    display: flex;
+    background: none !important;
   }
+.right {
+float: right;
+}
 
 mat-slider {
     margin: -50px;
 }
 .sidenavContent{
+    background: none !important;
     margin-left: 50px;
     margin-right: 5px;
 }
