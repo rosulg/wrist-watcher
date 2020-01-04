@@ -10,48 +10,75 @@ import {Subscription} from 'rxjs';
 })
 export class UiSidebarLeftComponent {
 
-  
-  private rotate = false;
-  private viewPosition = 'none';
-  private x_hand_rotation = 0;
-  private y_hand_rotation = 0;
-  private z_hand_rotation = 0;
-  private did_zoom = false;
-  private zoom = 5;
-  private sliders: Sliders;
-  private sliderSubscription: Subscription;
-  private mode ="side";
-  private zoomValue ="2";
-  private elsize=false;
-  private styledoc;
 
-  
-  constructor(private sidebarNotificationService: SidebarNotificationService, private sliderUpdaterService: SliderUpdaterService) { 
+  opened = false;
+  rotate = false;
+  viewPosition = 'none';
+  x_hand_rotation = 0;
+  y_hand_rotation = 0;
+  z_hand_rotation = 0;
+  did_zoom = false;
+  zoom = 5;
+  sliders: Sliders;
+  sliderSubscription: Subscription;
+  mode = 'side';
+  zoomValue = '2';
+  elsize = false;
+  styledoc;
+
+
+  constructor(private sidebarNotificationService: SidebarNotificationService, private sliderUpdaterService: SliderUpdaterService) {
     this.sliderSubscription = sliderUpdaterService.observable.subscribe(res => {
       this.sliders = res;
 
       this.updateSliders(this.sliders);
     }, err => console.log(err));
-  } 
-  viewTop(){
-    this.resetRotation()
-    this.viewPosition = "top";
-    this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
   }
 
-  viewLeft(){
-    this.resetRotation()
-    this.viewPosition = "left";
-    this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
+  viewTop() {
+    this.resetRotation();
+    this.viewPosition = 'top';
+    this.sidebarNotificationService.notify({
+      viewPosition: this.viewPosition,
+      rotate: this.rotate,
+      z_hand_rotation: this.z_hand_rotation,
+      x_hand_rotation: this.x_hand_rotation,
+      y_hand_rotation: this.y_hand_rotation,
+      did_zoom: this.did_zoom,
+      zoom: this.zoom
+    });
   }
 
-  viewRight(){
-    this.resetRotation()
-    this.viewPosition = "right";
-    this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
+  viewLeft() {
+    this.resetRotation();
+    this.viewPosition = 'left';
+    this.sidebarNotificationService.notify({
+      viewPosition: this.viewPosition,
+      rotate: this.rotate,
+      z_hand_rotation: this.z_hand_rotation,
+      x_hand_rotation: this.x_hand_rotation,
+      y_hand_rotation: this.y_hand_rotation,
+      did_zoom: this.did_zoom,
+      zoom: this.zoom
+    });
   }
-  updateSliders(sliders: Sliders){
-    if(sliders){
+
+  viewRight() {
+    this.resetRotation();
+    this.viewPosition = 'right';
+    this.sidebarNotificationService.notify({
+      viewPosition: this.viewPosition,
+      rotate: this.rotate,
+      z_hand_rotation: this.z_hand_rotation,
+      x_hand_rotation: this.x_hand_rotation,
+      y_hand_rotation: this.y_hand_rotation,
+      did_zoom: this.did_zoom,
+      zoom: this.zoom
+    });
+  }
+
+  updateSliders(sliders: Sliders) {
+    if (sliders) {
       this.zoomValue = sliders.zoom.toString();
     }
   }
@@ -110,26 +137,35 @@ export class UiSidebarLeftComponent {
     this.did_zoom = false;
   }
 
-  rotateHand(){
+  rotateHand() {
     this.rotate = !this.rotate;
-    this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
+    this.sidebarNotificationService.notify({
+      viewPosition: this.viewPosition,
+      rotate: this.rotate,
+      z_hand_rotation: this.z_hand_rotation,
+      x_hand_rotation: this.x_hand_rotation,
+      y_hand_rotation: this.y_hand_rotation,
+      did_zoom: this.did_zoom,
+      zoom: this.zoom
+    });
   }
 
-  sizer(){
-    this.styledoc = document.getElementById("main")
-    if (this.elsize){
+  sizer() {
+    this.styledoc = document.getElementById('main');
+    if (this.elsize) {
       this.styledoc.style.height = '';
-      this.styledoc.style.width = ''
-      this.elsize = !this.elsize
-      document.getElementById("outside").style.display="block"
-    }else{
-      document.getElementById("outside").style.display="none"
+      this.styledoc.style.width = '';
+      this.elsize = !this.elsize;
+      document.getElementById('outside').style.display = 'block';
+    } else {
+      document.getElementById('outside').style.display = 'none';
       this.styledoc.style.height = '100vh';
-      this.styledoc.style.width = '30vh'
-      this.elsize = !this.elsize
+      this.styledoc.style.width = '30vh';
+      this.elsize = !this.elsize;
     }
   }
-  resetRotation(){
+
+  resetRotation() {
     this.passHandRotationX(0);
     this.passHandRotationY(0);
     this.passHandRotationZ(0);
