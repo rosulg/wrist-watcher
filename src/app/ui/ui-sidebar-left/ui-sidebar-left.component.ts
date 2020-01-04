@@ -24,7 +24,7 @@ export class UiSidebarLeftComponent {
   private zoomValue ="2";
   private elsize=false;
   private styledoc;
-  
+
   
   constructor(private sidebarNotificationService: SidebarNotificationService, private sliderUpdaterService: SliderUpdaterService) { 
     this.sliderSubscription = sliderUpdaterService.observable.subscribe(res => {
@@ -119,9 +119,13 @@ export class UiSidebarLeftComponent {
     this.styledoc = document.getElementById("main")
     if (this.elsize){
       this.styledoc.style.height = '';
+      this.styledoc.style.width = ''
       this.elsize = !this.elsize
+      document.getElementById("outside").style.display="block"
     }else{
+      document.getElementById("outside").style.display="none"
       this.styledoc.style.height = '100vh';
+      this.styledoc.style.width = '30vh'
       this.elsize = !this.elsize
     }
   }
