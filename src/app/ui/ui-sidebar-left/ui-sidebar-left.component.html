@@ -1,29 +1,31 @@
-<mat-sidenav-container class="example-container">
-    <mat-sidenav #drawer mode="side" opened role="navigation">
-        <mat-nav-list>
-        <a >First Component</a>
-        <a >Second Component</a>
-        </mat-nav-list>
+<mat-sidenav-container class="example-container" id="main">
+    <mat-sidenav #sidenav [mode]="mode" [(opened)]="opened" style="background: none !important;">
+        <div>
+            <button class="right" mat-button (click)="sidenav.toggle();sizer()"><mat-icon>exit_to_app</mat-icon></button>
+        </div>
+        <div  class = "sidenavContent">
+            <strong><p>Sidenav content</p></strong>
+            <p><button class="view" mat-button (click)="viewTop()">Top</button></p>
+            <p><button class="view" mat-button (click)="viewLeft()">Left</button></p>
+            <p><button class="view" mat-button (click)="viewRight()">Right</button></p>
+            <p><button class="view" mat-button (click)="rotateHand()">Rotate</button></p>
+            <p><strong>Hand coordinates</strong></p>
+
+            <p><strong>x</strong></p>
+            <mat-slider class = "titles" min="0" max="359" value = {{x_hand_rotation}}  id="myRangeHandX" #rangerx (input)="passHandRotationX(rangerx.value)"></mat-slider>
+            <p><strong>y</strong></p>
+            <mat-slider class = "titles" min="0" max="359" value = {{y_hand_rotation}} id="myRangeHandY" #rangery (input)="passHandRotationY(rangery.value)"></mat-slider>
+            <p><strong>z</strong></p>
+            <mat-slider class = "titles" min="0" max="359" value = {{z_hand_rotation}}  id="myRangeHandZ" #rangerz (input)="passHandRotationZ(rangerz.value)"></mat-slider>
+            <p class = "topSpace"><strong>Zoom</strong></p>
+            <mat-slider class = "titles" min="0.4" max="10" value={{zoomValue}} step="0.00000001"  id="myRangeZoom" #rangerzoom (input)="cameraZoom(rangerzoom.value)"></mat-slider>
+        </div>
+        <app-ui-infobar-bottom></app-ui-infobar-bottom>
     </mat-sidenav>
     <mat-sidenav-content>
-        <p>hello</p>
+        <div>
+            <button id="outside" mat-button (click)="sidenav.toggle();sizer()"><mat-icon>menu</mat-icon></button>
+        </div>
     </mat-sidenav-content>
 </mat-sidenav-container>
-
-<div class="slider" id="handSliders">
-    <div></div>
-    <div class="slidecontainer">
-        <p>x</p>
-        <input type="range" min="1" max="359" value="50"  id="myRangeHandX" #rangerx (input)="passHandRotationX(rangerx.value)">
-        <p>y</p>
-        <input type="range" min="1" max="359" value="50"  id="myRangeHandY" #rangery (input)="passHandRotationY(rangery.value)">
-        <p>z</p>
-        <input type="range" min="1" max="359" value="50"  id="myRangeHandZ" #rangerz (input)="passHandRotationZ(rangerz.value)">
-    </div>
-</div>
-
-<div class="zoomslider" id = "zoomslider">
-    <p>zoom</p>
-    <input type="range" min="0.5" max="10" value="2" step="0.00000001"  id="myRangeZoom" #rangerzoom (input)="cameraZoom(rangerzoom.value)">
-</div>
-
+  

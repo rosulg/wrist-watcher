@@ -10,6 +10,7 @@ import {Subscription} from 'rxjs';
 })
 export class UiSidebarLeftComponent {
 
+  
   private rotate = false;
   private viewPosition = 'none';
   private x_hand_rotation = 0;
@@ -19,78 +20,39 @@ export class UiSidebarLeftComponent {
   private zoom = 5;
   private sliders: Sliders;
   private sliderSubscription: Subscription;
+  private mode ="side";
+  private zoomValue ="2";
+  private elsize=false;
+  private styledoc;
 
-  constructor(private sidebarNotificationService: SidebarNotificationService, private sliderUpdaterService: SliderUpdaterService) {
+  
+  constructor(private sidebarNotificationService: SidebarNotificationService, private sliderUpdaterService: SliderUpdaterService) { 
     this.sliderSubscription = sliderUpdaterService.observable.subscribe(res => {
       this.sliders = res;
+
       this.updateSliders(this.sliders);
     }, err => console.log(err));
+  } 
+  viewTop(){
+    this.resetRotation()
+    this.viewPosition = "top";
+    this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
   }
 
-  onClick(item: { id: number | string, name: string, icon: string, index: number }) {
-    const x = document.getElementById('handSliders');
-    const y = document.getElementById('zoomslider');
-    x.style.display = 'none';
-    y.style.display = 'none';
-
-    if (item != null) {
-      if (item.id === '2') {
-        x.style.display = 'block';
-      } else if (item.id === '3') {
-        y.style.display = 'block';
-      } else if (item.id === '5') {
-        this.viewPosition = 'top';
-        this.sidebarNotificationService.notify({
-          viewPosition: this.viewPosition,
-          rotate: this.rotate,
-          z_hand_rotation: this.z_hand_rotation,
-          x_hand_rotation: this.x_hand_rotation,
-          y_hand_rotation: this.y_hand_rotation,
-          did_zoom: this.did_zoom,
-          zoom: this.zoom
-        });
-      } else if (item.id === '6') {
-        this.viewPosition = 'left';
-        this.sidebarNotificationService.notify({
-          viewPosition: this.viewPosition,
-          rotate: this.rotate,
-          z_hand_rotation: this.z_hand_rotation,
-          x_hand_rotation: this.x_hand_rotation,
-          y_hand_rotation: this.y_hand_rotation,
-          did_zoom: this.did_zoom,
-          zoom: this.zoom
-        });
-      } else if (item.id === '7') {
-        this.viewPosition = 'right';
-        this.sidebarNotificationService.notify({
-          viewPosition: this.viewPosition,
-          rotate: this.rotate,
-          z_hand_rotation: this.z_hand_rotation,
-          x_hand_rotation: this.x_hand_rotation,
-          y_hand_rotation: this.y_hand_rotation,
-          did_zoom: this.did_zoom,
-          zoom: this.zoom
-        });
-      } else if (item.id === '8') {
-        this.rotate = !this.rotate;
-        this.sidebarNotificationService.notify({
-          viewPosition: this.viewPosition,
-          rotate: this.rotate,
-          z_hand_rotation: this.z_hand_rotation,
-          x_hand_rotation: this.x_hand_rotation,
-          y_hand_rotation: this.y_hand_rotation,
-          did_zoom: this.did_zoom,
-          zoom: this.zoom
-        });
-      }
-      this.viewPosition = 'none';
-    }
+  viewLeft(){
+    this.resetRotation()
+    this.viewPosition = "left";
+    this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
   }
 
-  updateSliders(sliders: Sliders) {
-    if (sliders) {
-      (<HTMLInputElement>document.getElementById('myRangeZoom')).value = sliders.zoom.toString();
-      console.log(sliders.zoom);
+  viewRight(){
+    this.resetRotation()
+    this.viewPosition = "right";
+    this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
+  }
+  updateSliders(sliders: Sliders){
+    if(sliders){
+      this.zoomValue = sliders.zoom.toString();
     }
   }
 
@@ -146,5 +108,30 @@ export class UiSidebarLeftComponent {
       zoom: this.zoom
     });
     this.did_zoom = false;
+  }
+
+  rotateHand(){
+    this.rotate = !this.rotate;
+    this.sidebarNotificationService.notify({viewPosition: this.viewPosition, rotate: this.rotate,  z_hand_rotation: this.z_hand_rotation, x_hand_rotation: this.x_hand_rotation, y_hand_rotation: this.y_hand_rotation, did_zoom: this.did_zoom, zoom: this.zoom});
+  }
+
+  sizer(){
+    this.styledoc = document.getElementById("main")
+    if (this.elsize){
+      this.styledoc.style.height = '';
+      this.styledoc.style.width = ''
+      this.elsize = !this.elsize
+      document.getElementById("outside").style.display="block"
+    }else{
+      document.getElementById("outside").style.display="none"
+      this.styledoc.style.height = '100vh';
+      this.styledoc.style.width = '30vh'
+      this.elsize = !this.elsize
+    }
+  }
+  resetRotation(){
+    this.passHandRotationX(0);
+    this.passHandRotationY(0);
+    this.passHandRotationZ(0);
   }
 }

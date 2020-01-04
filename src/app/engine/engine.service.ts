@@ -24,6 +24,8 @@ export class EngineService implements OnDestroy {
   private sidebarActionSubscription: Subscription;
   private frameId: number = null;
   private zoom: number;
+  private currDistance: number;
+  private factor: number;
 
   private watch;
   private hand;
@@ -70,17 +72,18 @@ export class EngineService implements OnDestroy {
     this.controls.autoRotate = false;
     this.controls.enableZoom = true;
     this.controls.enablePan = true;
-    this.controls.minDistance = 1;
+    this.controls.minDistance = 0.4;
     this.controls.maxDistance = 10;
     this.controls.update();
+    this.controls.addEventListener('change', this.updateSliders.bind(this));
     this.controls.update();
   }
 
-  updateSliders() {
-    this.zoom = this.controls.target.distanceTo(this.controls.object.position);
-    this.camera.zoom = this.zoom;
+  updateSliders(){
+    this.zoom = this.controls.target.distanceTo( this.controls.object.position )
     this.sliderUpdaterService.notify({zoom: this.zoom});
   }
+  
 
   async createScene(canvas: ElementRef<HTMLCanvasElement>): Promise<void> {
     // The first step is to get the reference of the canvas element from our HTML document
@@ -106,7 +109,7 @@ export class EngineService implements OnDestroy {
     this.camera = new THREE.PerspectiveCamera(
       75, window.innerWidth / window.innerHeight, 0.1, 1000
     );
-    this.camera.position.z = 5;
+    this.camera.position.z = 2;
     this.scene.add(this.camera);
     this.configControls();
 
@@ -295,26 +298,35 @@ export class EngineService implements OnDestroy {
   private changeCameraPosition(action: SidebarAction) {
     if (this.camera && action) {
       if (action.did_zoom) {
-        this.camera.zoom = action.zoom;
-        this.camera.updateProjectionMatrix();
+        this.currDistance = this.camera.position.length(),
+        this.factor = action.zoom/this.currDistance;
+        this.camera.position.x *= this.factor;
+        this.camera.position.y *= this.factor;
+        this.camera.position.z *= this.factor;
+        //this.camera.zoom = action.zoom;
+        //this.camera.updateProjectionMatrix();
+        //console.log(this.camera.zoom)
       } else {
         this.group.position.set(0, 0, 0);
         if (action.viewPosition === 'top') {
           this.camera.position.set(0, 2, 0);
           this.camera.lookAt(new THREE.Vector3());
+          this.updateSliders()
         } else if (action.viewPosition === 'left') {
           this.camera.position.set(1, 1, -3);
           this.camera.lookAt(new THREE.Vector3());
+          this.updateSliders()
         } else if (action.viewPosition === 'right') {
           this.camera.position.set(-1, 1, 1);
           this.camera.lookAt(new THREE.Vector3());
+          this.updateSliders()
         }
       }
     }
   }
 
   private scaleHand(scale: number): void {
-    if (this.hand) {
+    if (this.hand && this.sidebarAction) {
       this.hand.scale.set(1, 1, scale);
       // Set rotation as default before computing the new bracelet.
       this.group.rotation.set(0, 0, 0);
