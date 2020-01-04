@@ -7,10 +7,18 @@ float: right;
 }
 
 mat-slider {
-    margin: -50px;
+    margin: -60px;
+    margin-top: -90px;
 }
 .sidenavContent{
     background: none !important;
-    margin-left: 50px;
     margin-right: 5px;
+    margin-left: 5px;
+}
+.titles{
+    margin-left: 2px !important;
+}
+
+p.topSpace{
+    margin-top: 10px;
 }

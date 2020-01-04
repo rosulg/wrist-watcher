@@ -21,7 +21,7 @@ export class UiSidebarLeftComponent {
   private sliders: Sliders;
   private sliderSubscription: Subscription;
   private mode ="side";
-  private zoomValue ="5";
+  private zoomValue ="2";
   private elsize=false;
   private styledoc;
   

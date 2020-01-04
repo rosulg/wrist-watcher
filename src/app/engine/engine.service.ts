@@ -108,7 +108,7 @@ export class EngineService implements OnDestroy {
     this.camera = new THREE.PerspectiveCamera(
       75, window.innerWidth / window.innerHeight, 0.1, 1000
     );
-    this.camera.position.z = 5;
+    this.camera.position.z = 2;
     this.scene.add(this.camera);
     this.configControls();
 
@@ -310,12 +310,15 @@ export class EngineService implements OnDestroy {
         if (action.viewPosition === 'top') {
           this.camera.position.set(0, 2, 0);
           this.camera.lookAt(new THREE.Vector3());
+          this.updateSliders()
         } else if (action.viewPosition === 'left') {
           this.camera.position.set(1, 1, -3);
           this.camera.lookAt(new THREE.Vector3());
+          this.updateSliders()
         } else if (action.viewPosition === 'right') {
           this.camera.position.set(-1, 1, 1);
           this.camera.lookAt(new THREE.Vector3());
+          this.updateSliders()
         }
       }
     }
