@@ -95,6 +95,8 @@ export class EngineService implements OnDestroy {
     // Set white background
     this.renderer.setClearColor(0xFFFFFF, 1.0);
 
+    this.renderer.gammaOutput = true;
+
     // create the scene
     this.scene = new THREE.Scene();
 
