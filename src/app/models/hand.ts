@@ -39,8 +39,8 @@ export class Hand {
             loader.load(
                 'assets/models/temp-hand.gltf',
                 ( gltf ) => {
-                    const hand = new THREE.Mesh( gltf.scene.children[0].geometry, material);
-                    console.log(hand.material);
+                    var handMesh = gltf.scene.getObjectByName("hand001");
+                    const hand = new THREE.Mesh( handMesh["geometry"], material );
 
                     return res(hand);
                 },

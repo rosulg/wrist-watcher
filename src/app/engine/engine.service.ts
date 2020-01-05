@@ -118,10 +118,13 @@ export class EngineService implements OnDestroy {
     this.light.position.z = 10;
     this.scene.add(this.light);
 
-    const pointLight = new THREE.PointLight(0xfdfbd3, 1, 100);
-    pointLight.position.set(0, 10, 0);
-    this.scene.add(pointLight);
+    const pointLightUp = new THREE.PointLight(0xfdfbd3, 1, 100);
+    pointLightUp.position.set(0, 10, 0);
+    this.scene.add(pointLightUp);
 
+    const pointLightDown = new THREE.PointLight(0xfdfbd3, 1, 100);
+    pointLightDown.position.set(0, -10, 0);
+    this.scene.add(pointLightDown);
 
     const results = await Promise.all([
       new Hand(0xfffbf5).load(),
