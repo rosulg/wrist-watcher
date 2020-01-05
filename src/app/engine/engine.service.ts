@@ -8,6 +8,7 @@ import {OrbitControls} from '@avatsaev/three-orbitcontrols-ts';
 import {SidebarAction, SidebarNotificationService} from '../services/sidebar-notification.service';
 import {TwoToneWatchLink} from '../models/two-tone-watch-link';
 import {SliderUpdaterService} from '../services/slider-updater.service';
+import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader'
 
 @Injectable({
   providedIn: 'root'
@@ -98,6 +99,8 @@ export class EngineService implements OnDestroy {
     // Set white background
     this.renderer.setClearColor(0xFFFFFF, 1.0);
 
+    this.renderer.gammaOutput = true;
+
     // create the scene
     this.scene = new THREE.Scene();
 
@@ -113,16 +116,23 @@ export class EngineService implements OnDestroy {
     this.scene.add(this.camera);
     this.configControls();
 
+    // background 
+    var textureLoader = new THREE.TextureLoader();
+    var bkgdTexture = textureLoader.load('assets/background/wall.jpeg');
+    this.scene.background = bkgdTexture;
 
     // soft white light
     this.light = new THREE.AmbientLight(0x404040);
     this.light.position.z = 10;
     this.scene.add(this.light);
 
-    const pointLight = new THREE.PointLight(0xfdfbd3, 1, 100);
-    pointLight.position.set(0, 10, 0);
-    this.scene.add(pointLight);
+    const pointLightUp = new THREE.PointLight(0xfdfbd3, 1, 100);
+    pointLightUp.position.set(0, 10, 0);
+    this.scene.add(pointLightUp);
 
+    const pointLightDown = new THREE.PointLight(0xfdfbd3, 1, 100);
+    pointLightDown.position.set(0, -10, 0);
+    this.scene.add(pointLightDown);
 
     const results = await Promise.all([
       new Hand(0xfffbf5).load(),
